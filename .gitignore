@@ -99,3 +99,10 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Generated Qt files:
+debug
+Tango_rc.py
+mainwindow.py
+qt_creator
+ohm_gui.pro.user
