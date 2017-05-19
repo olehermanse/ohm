@@ -90,6 +90,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSave"/>
+   <addaction name="actionLoad"/>
   </widget>
   <action name="actionSave">
    <property name="icon">
@@ -101,6 +102,10 @@
    </property>
   </action>
   <action name="actionLoad">
+   <property name="icon">
+    <iconset resource="ui/tango/Tango.qrc">
+     <normaloff>:/scalable/actions/document-open.svg</normaloff>:/scalable/actions/document-open.svg</iconset>
+   </property>
    <property name="text">
     <string>Load</string>
    </property>
