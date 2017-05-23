@@ -1,25 +1,44 @@
 import sys
 from PyQt5 import QtGui, uic, QtWidgets
-import mainwindow
+from mainwindow import Ui_MainWindow
 
-class MyWindow(QtWidgets.QMainWindow):
+class Gui():
     def __init__(self):
-        super(MyWindow, self).__init__()
-        #uic.loadUi('mainwindow.ui', self)
-        #self.show()
+        self.window = QtWidgets.QMainWindow()
+        self.builder = MainWindowBuilder(self.window, self)
 
-def save():
-    print("SAVE")
+    def show(self):
+        self.window.show()
 
-def load():
-    print("LOAD")
+    def save(self):
+        print("SAVE")
+
+    def load(self):
+        print("LOAD")
+
+    def run(self):
+        print("RUN: " + self.builder.cmd_text.text())
+        self.builder.cmd_text.clear()
+
+class MainWindowBuilder(Ui_MainWindow):
+    def __init__(self, target, gui):
+        Ui_MainWindow.__init__(self)
+        self.setupUi(target)
+        self.actionSave.triggered.connect(gui.save)
+        self.actionLoad.triggered.connect(gui.load)
+        self.cmd_button.clicked.connect(gui.run)
+        self.cmd_text.returnPressed.connect(gui.run)
+
+class App():
+    def __init__(self):
+        pass
+
+    def start(self):
+        self.app = QtWidgets.QApplication(sys.argv)
+        self.gui = Gui()
+        self.gui.show()
+        sys.exit(self.app.exec_())
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    window = MyWindow()
-    window_design = mainwindow.Ui_MainWindow()
-    window_design.setupUi(window)
-    window_design.actionSave.triggered.connect(save)
-    window_design.actionLoad.triggered.connect(load)
-    window.show()
-    sys.exit(app.exec_())
+    app = App()
+    app.start()

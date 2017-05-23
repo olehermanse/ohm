@@ -1,7 +1,7 @@
 default: run
 
 mainwindow.py: mainwindow.ui
-	pyuic5 mainwindow.ui -o mainwindow.py
+	pyuic5 -x mainwindow.ui -o mainwindow.py
 
 Tango_rc.py: ui/tango/Tango.qrc
 	pyrcc5 ui/tango/Tango.qrc -o Tango_rc.py
