@@ -105,4 +105,5 @@ debug
 Tango_rc.py
 ui_mainwindow.py
 qt_creator
-ohm_gui.pro.user
+ohm_gui/ohm_gui.pro.user
+build-*
