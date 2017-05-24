@@ -28,7 +28,8 @@ SOURCES += cpp/main.cpp\
 
 HEADERS  += cpp/mainwindow.h
 
-FORMS    += mainwindow.ui
+FORMS    += \
+    ui_mainwindow.ui
 
 RESOURCES += \
     ui/tango/Tango.qrc

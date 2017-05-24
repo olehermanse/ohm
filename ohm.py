@@ -1,14 +1,53 @@
 import sys
-from PyQt5 import QtGui, uic, QtWidgets
-from mainwindow import Ui_MainWindow
+from PyQt5 import QtWidgets
+from ui_mainwindow import Ui_MainWindow as MainWindowBuilder
 
-class Gui():
+class MainWindow(QtWidgets.QMainWindow):
+    """Like QMainWindow, but with custom behavior on window events"""
     def __init__(self):
-        self.window = QtWidgets.QMainWindow()
-        self.builder = MainWindowBuilder(self.window, self)
+        super().__init__()
+        # This class is empty for now, but will include event functions, e.g.:
+        # on_resize, on_quit, on_focus
 
-    def show(self):
+class App():
+    """The main application class.
+
+    contains GUI (the window), data struccture, actions etc.
+
+    Todo:
+        * Can make a separate GUI class if needed
+    """
+
+    def __init__(self):
+        """Initializes a Qt Application and builds GUI inside a main window"""
+        self.qt_app = QtWidgets.QApplication(sys.argv)
+        self.window = MainWindow()
+
+        # Build GUI using generated python file:
+        self.builder = MainWindowBuilder()
+        self.builder.setupUi(self.window)
+
+        # Add our functions to GUI actions:
+        self.connect_actions(self.builder)
+
+    def start(self):
+        """Show the window, execute Qt app, return Qt app exit code"""
         self.window.show()
+        exit_code = self.qt_app.exec_()
+        sys.exit(exit_code)
+
+    def connect_actions(self, builder):
+        """Register behavior(functions) with GUI events/actions"""
+
+        # General actions:
+        builder.actionSave.triggered.connect(self.save)
+        builder.actionLoad.triggered.connect(self.load)
+
+        # Push button:
+        builder.cmd_button.clicked.connect(self.run)
+
+        # Line Edit text field:
+        builder.cmd_text.returnPressed.connect(self.run)
 
     def save(self):
         print("SAVE")
@@ -19,25 +58,6 @@ class Gui():
     def run(self):
         print("RUN: " + self.builder.cmd_text.text())
         self.builder.cmd_text.clear()
-
-class MainWindowBuilder(Ui_MainWindow):
-    def __init__(self, target, gui):
-        Ui_MainWindow.__init__(self)
-        self.setupUi(target)
-        self.actionSave.triggered.connect(gui.save)
-        self.actionLoad.triggered.connect(gui.load)
-        self.cmd_button.clicked.connect(gui.run)
-        self.cmd_text.returnPressed.connect(gui.run)
-
-class App():
-    def __init__(self):
-        pass
-
-    def start(self):
-        self.app = QtWidgets.QApplication(sys.argv)
-        self.gui = Gui()
-        self.gui.show()
-        sys.exit(self.app.exec_())
 
 if __name__ == '__main__':
     app = App()
