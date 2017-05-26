@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2017-05-19T00:47:22
+# Project created by QtCreator 2017-05-24T23:21:17
 #
 #-------------------------------------------------
 
@@ -23,13 +23,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 
-SOURCES += cpp/main.cpp\
-        cpp/mainwindow.cpp
+SOURCES += main.cpp\
+        mainwindow.cpp
 
-HEADERS  += cpp/mainwindow.h
+HEADERS  += mainwindow.h
 
-FORMS    += \
-    ui_mainwindow.ui
+FORMS    += mainwindow.ui
 
 RESOURCES += \
     ui/tango/Tango.qrc
