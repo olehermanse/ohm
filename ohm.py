@@ -42,6 +42,7 @@ class App():
         # General actions:
         builder.actionSave.triggered.connect(self.save)
         builder.actionLoad.triggered.connect(self.load)
+        builder.actionCopy.triggered.connect(self.copy)
 
         # Push button:
         builder.cmd_button.clicked.connect(self.run)
@@ -54,6 +55,9 @@ class App():
 
     def load(self):
         print("LOAD")
+
+    def copy(self):
+        print("COPY")
 
     def run(self):
         print("RUN: " + self.builder.cmd_text.text())

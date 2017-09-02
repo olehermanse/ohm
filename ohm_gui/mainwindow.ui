@@ -144,6 +144,7 @@
    </attribute>
    <addaction name="actionSave"/>
    <addaction name="actionLoad"/>
+   <addaction name="actionCopy"/>
   </widget>
   <action name="actionSave">
    <property name="icon">
@@ -164,6 +165,10 @@
    </property>
   </action>
   <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="ui/tango/Tango.qrc">
+     <normaloff>:/scalable/actions/edit-copy.svg</normaloff>:/scalable/actions/edit-copy.svg</iconset>
+   </property>
    <property name="text">
     <string>Copy</string>
    </property>
