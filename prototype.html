@@ -113,14 +113,34 @@
       return Math.round(pos / 50) * 50;
     }
 
+    function circleExists(x, y) {
+      var drawing = document.getElementById("drawing");
+      
+      for (let element of drawing.children) {
+        // console.log(element.tagName);
+        if (element.tagName === "circle" &&
+            element.getAttribute("cx") === x &&
+            element.getAttribute("cy") === y &&
+            element.getAttribute("r") === "10")
+        {
+          return true;
+        }
+      }
+      return false;
+    }
+
     function drawClick(event) {
-      var x = roundToGrid(event.offsetX);
-      var y = roundToGrid(event.offsetY);
+      var x = "" + roundToGrid(event.offsetX);
+      var y = "" + roundToGrid(event.offsetY);
+
+      if (circleExists(x, y)) {
+        return;
+      }
       // console.log("X: " + x + " Y: " + y);
       var drawing = document.getElementById("drawing");
       var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-      circle.setAttribute("cx", "" + x);
-      circle.setAttribute("cy", "" + y);
+      circle.setAttribute("cx", x);
+      circle.setAttribute("cy", y);
       circle.setAttribute("r", "10");
       circle.setAttribute("fill", "#000000");
       drawing.appendChild(circle);
@@ -137,7 +157,10 @@
         <div class="tool"><svg class="tool_svg" data-feather="upload">Load</svg></div>
         <div class="tool"><svg class="tool_svg" data-feather="save">Save</svg></div>
         <div class="tool"><svg class="tool_svg" data-feather="external-link">Share</svg></div>
-        <div class="tool"><svg class="tool_svg" data-feather="plus-circle">Add</svg></div>
+        <div class="tool"><svg class="tool_svg" data-feather="edit-2">Wire</svg></div>
+        <div class="tool"><svg class="tool_svg" data-feather="cpu">Component</svg></div>
+        <div class="tool"><svg class="tool_svg" data-feather="type">Text</svg></div>
+        <div class="tool"><svg class="tool_svg" data-feather="square">Rectangle</svg></div>
         <div class="tool"><svg class="tool_svg" data-feather="x">Delete</svg></div>
         <div class="tool"><svg class="tool_svg" data-feather="copy">Copy</svg></div>
       </div>
