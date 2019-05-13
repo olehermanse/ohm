@@ -1,138 +1,153 @@
 <html>
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ohm</title>
-<style type="text/css">
-* {
-  margin: 0;
-  padding: 0;
-  font-family: Helvetica, Arial, Sans-Serif;
-}
-.fixed {
-  position: fixed;
-}
-.sidebar {
-  height: 100vh;
-  min-height: 600px;
-  width: 250px;
-  background-color: #333333;
-  color: #CCCCCC;
-  display: flex;
-  flex-direction: column;
-}
-.sidebar_content {
-  height:100%;
-  padding: 2em;
-  display: flex;
-  flex-direction: column;
-}
-.toolheader {
-  flex: 0 1 auto;
-  margin-bottom: 1em;
-}
-.toolbox {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-}
-.toolfooter {
-  margin-top: 2em;
-  flex: 0 1 2em;
-}
-.tool {
-  flex: 1 1 auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #555555;
-  margin: 1em;
-}
-body {
-  background-color: #DDDDDD;
-  display: flex;
-  min-width: 1050px;
-  min-height: 800px;
-}
-svg {
-  background-color: #FFFFFF;
-}
-</style>
-<script>
-function initOhm() {
-  var p = document.getElementById("drawing");
-  p.onclick = drawClick;
-  initGrid();
-};
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ohm</title>
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+  <style type="text/css">
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: 'Varela Round', Helvetica, Arial, Sans-Serif;
+    }
 
-function createGridLine(x1, y1, x2, y2)
-{
-    var drawing = document.getElementById("drawing");
-    var line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-    line.setAttribute("x1", ""+x1);
-    line.setAttribute("y1", ""+y1);
-    line.setAttribute("x2", ""+x2);
-    line.setAttribute("y2", ""+y2);
-    line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:1");
-    drawing.appendChild(line);
-}
+    .sidebar {
+      height: 100vh;
+      min-height: 600px;
+      width: 90px;
+      background-color: #ECECEC;
+      color: #4A4A4A;
+      display: flex;
+      flex-direction: column;
+    }
 
-function initGrid() {
-  for (var x = 100; x <= 800; x += 100)
-  {
-    createGridLine(x, 0, x, 800);
-  }
-  for (var y = 100; y <= 800; y += 100)
-  {
-    createGridLine(0, y, 800, y);
-  }
-}
+    .sidebar_content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
 
-function roundToGrid(pos) {
-  return Math.round(pos/100)*100;
-}
+    .toolheader {
+      flex: 0 1 auto;
+      margin: auto;
+      margin-top: 1em;
+    }
 
-function drawClick(event) {
-  var x = roundToGrid(event.offsetX);
-  var y = roundToGrid(event.offsetY);
-  // console.log("X: " + x + " Y: " + y);
-  var drawing = document.getElementById("drawing");
-  var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-  circle.setAttribute("cx", ""+x);
-  circle.setAttribute("cy", ""+y);
-  circle.setAttribute("r", "10");
-  circle.setAttribute("fill", "#000000");
-  drawing.appendChild(circle);
-}
-</script>
+    .toolbox {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      margin: auto;
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
+
+    .tool {
+      flex: 1 1 auto;
+      width: 36;
+      height: 36;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .tool_svg {
+      width: 32;
+      height: 32;
+    }
+
+    .tool_svg:hover {
+      width: 36;
+      height: 36;
+      cursor: pointer;
+    }
+
+    body {
+      background-color: #F2F2F2;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.5em;
+    }
+
+    #drawing {
+      background-color: #FFFFFF;
+      border: 2px;
+      border-color: #4A4A4A;
+      margin: 1em;
+    }
+
+  </style>
+  <script>
+    function initOhm() {
+      var p = document.getElementById("drawing");
+      p.onclick = drawClick;
+      initGrid();
+    };
+
+    function createGridLine(x1, y1, x2, y2) {
+      var drawing = document.getElementById("drawing");
+      var line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+      line.setAttribute("x1", "" + x1);
+      line.setAttribute("y1", "" + y1);
+      line.setAttribute("x2", "" + x2);
+      line.setAttribute("y2", "" + y2);
+      line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
+      drawing.appendChild(line);
+    }
+
+    function initGrid() {
+      for (var x = 50; x <= 800; x += 50) {
+        createGridLine(x, 0, x, 800);
+      }
+      for (var y = 50; y <= 800; y += 50) {
+        createGridLine(0, y, 800, y);
+      }
+    }
+
+    function roundToGrid(pos) {
+      return Math.round(pos / 50) * 50;
+    }
+
+    function drawClick(event) {
+      var x = roundToGrid(event.offsetX);
+      var y = roundToGrid(event.offsetY);
+      // console.log("X: " + x + " Y: " + y);
+      var drawing = document.getElementById("drawing");
+      var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+      circle.setAttribute("cx", "" + x);
+      circle.setAttribute("cy", "" + y);
+      circle.setAttribute("r", "10");
+      circle.setAttribute("fill", "#000000");
+      drawing.appendChild(circle);
+    }
+
+  </script>
 </head>
+
 <body onload="initOhm();">
-<div class="sidebar">
-  <!--
-    This is a "shadow" to offset the drawing by the width of the real
-    sidebar, which is fixed and would be on top of drawing otherwise.
-  -->
-</div>
-<div class="sidebar fixed">
-  <div class="sidebar_content">
-    <h1 class="toolheader">Ohm</h1>
-    <div class="toolbox">
-      <div class="tool">Wire</div>
-      <div class="tool">Move</div>
-      <div class="tool">Erase</div>
-      <div class="tool">Component</div>
-      <div class="tool">Save</div>
-      <div class="tool">Load</div>
-    </div>
-    <div class="toolfooter">
-      @olehermanse
+  <div class="sidebar">
+    <div class="sidebar_content">
+      <h1 class="toolheader">ohm</h1>
+      <div class="toolbox">
+        <div class="tool"><svg class="tool_svg" data-feather="upload">Load</svg></div>
+        <div class="tool"><svg class="tool_svg" data-feather="save">Save</svg></div>
+        <div class="tool"><svg class="tool_svg" data-feather="external-link">Share</svg></div>
+        <div class="tool"><svg class="tool_svg" data-feather="plus-circle">Add</svg></div>
+        <div class="tool"><svg class="tool_svg" data-feather="x">Delete</svg></div>
+        <div class="tool"><svg class="tool_svg" data-feather="copy">Copy</svg></div>
+      </div>
     </div>
   </div>
-</div>
-<svg id="drawing" width="800" height="800" version="1.1" xmlns="http://www.w3.org/2000/svg">
-</svg>
+  <svg id="drawing" width="600" height="600" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
 </body>
 <script>
-console.log("Hello, world");
+  feather.replace()
+
 </script>
+
 </html>
