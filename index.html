@@ -88,10 +88,12 @@ h1 {
     </style>
     <script>
 var ohm_state = "circle";
+var tmp_wire = null;
 
 function init_ohm() {
     var p = document.getElementById("drawing");
-    p.onclick = draw_click;
+    p.onmousedown = draw_mouse_down;
+    p.onmousemove = draw_mouse_move;
     init_grid();
     set_state(ohm_state);
 };
@@ -187,9 +189,9 @@ function circle_exists(x, y) {
     return false;
 }
 
-function draw_click(event) {
-    var x = "" + round_to_grid(event.offsetX);
-    var y = "" + round_to_grid(event.offsetY);
+function place_circle(x, y) {
+    var x = "" + round_to_grid(x);
+    var y = "" + round_to_grid(y);
 
     if (circle_exists(x, y)) {
         return;
@@ -200,8 +202,97 @@ function draw_click(event) {
     circle.setAttribute("cx", x);
     circle.setAttribute("cy", y);
     circle.setAttribute("r", "10");
-    circle.setAttribute("fill", "#000000");
+    circle.setAttribute("fill", "black");
     drawing.appendChild(circle);
+}
+
+function place_wire(wire, id) {
+    start_x = "" + round_to_grid(wire.start_x);
+    start_y = "" + round_to_grid(wire.start_y);
+    end_x = "" + round_to_grid(wire.end_x);
+    end_y = "" + round_to_grid(wire.end_y);
+
+    var drawing = document.getElementById("drawing");
+    var line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+    line.setAttribute("x1", start_x);
+    line.setAttribute("y1", start_y);
+    line.setAttribute("x2", end_x);
+    line.setAttribute("y2", end_y);
+    line.setAttribute("id", id);
+    line.setAttribute("stroke", "black");
+    if (id === "tmp_wire") {
+        line.setAttribute("stroke", "blue");
+    }
+    line.setAttribute("stroke-width", "10");
+    drawing.appendChild(line);
+}
+
+function update_wire_svg() {
+    if (tmp_wire === null) {
+        // Nothing to update
+    } else {
+        let element = document.getElementById("tmp_wire");
+        if (!element) {
+            return;
+        }
+        element.setAttribute("x2", tmp_wire.end_x);
+        element.setAttribute("y2", tmp_wire.end_y);
+    }
+}
+
+function wire_start(x, y) {
+    tmp_wire = {
+        "start_x": x,
+        "start_y": y,
+        "end_x": x,
+        "end_y": y
+    };
+
+    place_wire(tmp_wire, "tmp_wire");
+    update_wire_svg();
+}
+
+function wire_move(x, y) {
+    if (tmp_wire === null) {
+        return;
+    }
+    tmp_wire.end_x = x;
+    tmp_wire.end_y = y;
+    update_wire_svg();
+}
+
+function wire_end() {
+    let element = document.getElementById("tmp_wire");
+    element.setAttribute("id", "wire");
+    element.setAttribute("stroke", "black");
+    tmp_wire = null;
+    update_wire_svg();
+}
+
+function wire_click(x, y) {
+    if (tmp_wire === null) {
+        wire_start(x, y);
+    } else {
+        wire_end();
+    }
+}
+
+function draw_mouse_down(event) {
+    x = round_to_grid(event.offsetX);
+    y = round_to_grid(event.offsetY);
+    if (ohm_state === "circle") {
+        place_circle(x, y);
+    } else if (ohm_state === "wire") {
+        wire_click(x, y);
+    }
+}
+
+function draw_mouse_move(event) {
+    x = round_to_grid(event.offsetX);
+    y = round_to_grid(event.offsetY);
+    if (ohm_state === "wire") {
+        wire_move(x, y);
+    }
 }
 
     </script>
