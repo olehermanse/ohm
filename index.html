@@ -83,13 +83,13 @@ h1 {
 
     </style>
     <script>
-function initOhm() {
+function init_ohm() {
     var p = document.getElementById("drawing");
-    p.onclick = drawClick;
-    initGrid();
+    p.onclick = draw_click;
+    init_grid();
 };
 
-function createGridLine(x1, y1, x2, y2) {
+function create_grid_line(x1, y1, x2, y2) {
     var drawing = document.getElementById("drawing");
     var line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
     line.setAttribute("x1", "" + x1);
@@ -100,16 +100,16 @@ function createGridLine(x1, y1, x2, y2) {
     drawing.appendChild(line);
 }
 
-function initGrid() {
+function init_grid() {
     for (var x = 50; x <= 800; x += 50) {
-        createGridLine(x, 0, x, 800);
+        create_grid_line(x, 0, x, 800);
     }
     for (var y = 50; y <= 800; y += 50) {
-        createGridLine(0, y, 800, y);
+        create_grid_line(0, y, 800, y);
     }
 }
 
-function roundToGrid(pos) {
+function round_to_grid(pos) {
     return Math.round(pos / 50) * 50;
 }
 
@@ -153,7 +153,7 @@ function copy_tool() {
     console.log("copy");
 }
 
-function circleExists(x, y) {
+function circle_exists(x, y) {
     var drawing = document.getElementById("drawing");
 
     for (let element of drawing.children) {
@@ -168,11 +168,11 @@ function circleExists(x, y) {
     return false;
 }
 
-function drawClick(event) {
-    var x = "" + roundToGrid(event.offsetX);
-    var y = "" + roundToGrid(event.offsetY);
+function draw_click(event) {
+    var x = "" + round_to_grid(event.offsetX);
+    var y = "" + round_to_grid(event.offsetY);
 
-    if (circleExists(x, y)) {
+    if (circle_exists(x, y)) {
         return;
     }
     // console.log("X: " + x + " Y: " + y);
@@ -188,7 +188,7 @@ function drawClick(event) {
     </script>
 </head>
 
-<body onload="initOhm();">
+<body onload="init_ohm();">
     <div class="sidebar">
         <div class="sidebar_content">
             <h1 class="toolheader">ohm</h1>
