@@ -53,6 +53,10 @@
     align-items: center;
 }
 
+.active_tool {
+    color: blue;
+}
+
 .tool_svg {
     width: 28;
     height: 28;
@@ -83,10 +87,13 @@ h1 {
 
     </style>
     <script>
+var ohm_state = "circle";
+
 function init_ohm() {
     var p = document.getElementById("drawing");
     p.onclick = draw_click;
     init_grid();
+    set_state(ohm_state);
 };
 
 function create_grid_line(x1, y1, x2, y2) {
@@ -109,48 +116,60 @@ function init_grid() {
     }
 }
 
+function set_state(new_state) {
+    ohm_state = new_state;
+    var toolbox = document.getElementById("toolbox");
+    for (let tool of toolbox.children) {
+        if (tool.id === ohm_state) {
+            tool.classList.add("active_tool");
+        } else {
+            tool.classList.remove("active_tool");
+        }
+    }
+}
+
 function round_to_grid(pos) {
     return Math.round(pos / 50) * 50;
 }
 
 function upload_tool() {
-    console.log("upload");
+    set_state("upload");
 }
 
 function save_tool() {
-    console.log("save");
+    set_state("save");
 }
 
 function share_tool() {
-    console.log("share");
+    set_state("share");
 }
 
 function wire_tool() {
-    console.log("wire");
+    set_state("wire");
 }
 
 function circle_tool() {
-    console.log("circle");
+    set_state("circle");
 }
 
 function component_tool() {
-    console.log("component");
+    set_state("component");
 }
 
 function text_tool() {
-    console.log("text");
+    set_state("text");
 }
 
 function rectangle_tool() {
-    console.log("rectangle");
+    set_state("rectangle");
 }
 
 function delete_tool() {
-    console.log("delete");
+    set_state("delete");
 }
 
 function copy_tool() {
-    console.log("copy");
+    set_state("copy");
 }
 
 function circle_exists(x, y) {
@@ -192,17 +211,17 @@ function draw_click(event) {
     <div class="sidebar">
         <div class="sidebar_content">
             <h1 class="toolheader">ohm</h1>
-            <div class="toolbox">
-                <div class="tool" onclick="upload_tool();"><svg class="tool_svg" data-feather="upload">Load</svg></div>
-                <div class="tool" onclick="save_tool();"><svg class="tool_svg" data-feather="save">Save</svg></div>
-                <div class="tool" onclick="share_tool();"><svg class="tool_svg" data-feather="external-link">Share</svg></div>
-                <div class="tool" onclick="wire_tool();"><svg class="tool_svg" data-feather="edit-2">Wire</svg></div>
-                <div class="tool" onclick="circle_tool();"><svg class="tool_svg" data-feather="circle">Circle</svg></div>
-                <div class="tool" onclick="component_tool();"><svg class="tool_svg" data-feather="cpu">Component</svg></div>
-                <div class="tool" onclick="text_tool();"><svg class="tool_svg" data-feather="type">Text</svg></div>
-                <div class="tool" onclick="rectangle_tool();"><svg class="tool_svg" data-feather="square">Rectangle</svg></div>
-                <div class="tool" onclick="delete_tool();"><svg class="tool_svg" data-feather="x">Delete</svg></div>
-                <div class="tool" onclick="copy_tool();"><svg class="tool_svg" data-feather="copy">Copy</svg></div>
+            <div id="toolbox" class="toolbox">
+                <div class="tool" id="load" onclick="upload_tool();"><svg class="tool_svg" data-feather="upload"></svg></div>
+                <div class="tool" id="save" onclick="save_tool();"><svg class="tool_svg" data-feather="save"></svg></div>
+                <div class="tool" id="share" onclick="share_tool();"><svg class="tool_svg" data-feather="external-link"></svg></div>
+                <div class="tool" id="wire" onclick="wire_tool();"><svg class="tool_svg" data-feather="edit-2"></svg></div>
+                <div class="tool" id="circle" onclick="circle_tool();"><svg class="tool_svg" data-feather="circle"></svg></div>
+                <div class="tool" id="component" onclick="component_tool();"><svg class="tool_svg" data-feather="cpu"></svg></div>
+                <div class="tool" id="text" onclick="text_tool();"><svg class="tool_svg" data-feather="type"></svg></div>
+                <div class="tool" id="rectangle" onclick="rectangle_tool();"><svg class="tool_svg" data-feather="square"></svg></div>
+                <div class="tool" id="delete" onclick="delete_tool();"><svg class="tool_svg" data-feather="x"></svg></div>
+                <div class="tool" id="copy" onclick="copy_tool();"><svg class="tool_svg" data-feather="copy"></svg></div>
             </div>
         </div>
     </div>
