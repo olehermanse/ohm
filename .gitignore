@@ -107,3 +107,4 @@ ui_mainwindow.py
 qt_creator
 ohm_gui/ohm_gui.pro.user
 build-*
+.vscode
