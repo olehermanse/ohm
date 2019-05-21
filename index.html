@@ -1,326 +1,317 @@
 <html>
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Ohm</title>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
     <style type="text/css">
-* {
-    margin: 0;
-    padding: 0;
-    font-family: 'Varela Round', Helvetica, Arial, Sans-Serif;
-}
+      * {
+        margin: 0;
+        padding: 0;
+        font-family: "Varela Round", Helvetica, Arial, Sans-Serif;
+      }
 
-.sidebar {
-    height: 100vh;
-    min-height: 600px;
-    width: 90px;
-    background-color: #ECECEC;
-    color: #4A4A4A;
-    display: flex;
-    flex-direction: column;
-}
+      .sidebar {
+        height: 100vh;
+        min-height: 600px;
+        width: 90px;
+        background-color: #ececec;
+        color: #4a4a4a;
+        display: flex;
+        flex-direction: column;
+      }
 
-.sidebar_content {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
+      .sidebar_content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
 
-.toolheader {
-    flex: 0 1 auto;
-    margin: auto;
-    margin-top: 1em;
-}
+      .toolheader {
+        flex: 0 1 auto;
+        margin: auto;
+        margin-top: 1em;
+      }
 
-.toolbox {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    margin: auto;
-    margin-top: 1em;
-    margin-bottom: 1em;
-}
+      .toolbox {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        margin: auto;
+        margin-top: 1em;
+        margin-bottom: 1em;
+      }
 
-.tool {
-    flex: 1 1 auto;
-    width: 36;
-    height: 36;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+      .tool {
+        flex: 1 1 auto;
+        width: 36;
+        height: 36;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
 
-.active_tool {
-    color: blue;
-}
+      .active_tool {
+        color: blue;
+      }
 
-.tool_svg {
-    width: 28;
-    height: 28;
-}
+      .tool_svg {
+        width: 28;
+        height: 28;
+      }
 
-.tool_svg:hover {
-    width: 36;
-    height: 36;
-    cursor: pointer;
-}
+      .tool_svg:hover {
+        width: 36;
+        height: 36;
+        cursor: pointer;
+      }
 
-body {
-    background-color: #F2F2F2;
-    display: flex;
-    min-height: 100vh;
-}
+      body {
+        background-color: #f2f2f2;
+        display: flex;
+        min-height: 100vh;
+      }
 
-h1 {
-    font-size: 1.5em;
-}
+      h1 {
+        font-size: 1.5em;
+      }
 
-#drawing {
-    background-color: #FFFFFF;
-    border: 2px;
-    border-color: #4A4A4A;
-    margin: 1em;
-}
-
+      #drawing {
+        background-color: #ffffff;
+        border: 2px;
+        border-color: #4a4a4a;
+        margin: 1em;
+      }
     </style>
     <script>
-var ohm_state = "circle";
-var tmp_wire = null;
+      var ohm_state = "circle";
+      var tmp_wire = null;
 
-function init_ohm() {
-    var p = document.getElementById("drawing");
-    p.onmousedown = draw_mouse_down;
-    p.onmousemove = draw_mouse_move;
-    init_grid();
-    set_state(ohm_state);
-};
+      function init_ohm() {
+        var p = document.getElementById("drawing");
+        p.onmousedown = draw_mouse_down;
+        p.onmousemove = draw_mouse_move;
+        init_grid();
+        set_state(ohm_state);
+      }
 
-function create_grid_line(x1, y1, x2, y2) {
-    var drawing = document.getElementById("drawing");
-    var line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-    line.setAttribute("x1", "" + x1);
-    line.setAttribute("y1", "" + y1);
-    line.setAttribute("x2", "" + x2);
-    line.setAttribute("y2", "" + y2);
-    line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
-    drawing.appendChild(line);
-}
+      function create_grid_line(x1, y1, x2, y2) {
+        var drawing = document.getElementById("drawing");
+        var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", "" + x1);
+        line.setAttribute("y1", "" + y1);
+        line.setAttribute("x2", "" + x2);
+        line.setAttribute("y2", "" + y2);
+        line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
+        drawing.appendChild(line);
+      }
 
-function init_grid() {
-    for (var x = 50; x <= 800; x += 50) {
-        create_grid_line(x, 0, x, 800);
-    }
-    for (var y = 50; y <= 800; y += 50) {
-        create_grid_line(0, y, 800, y);
-    }
-}
+      function init_grid() {
+        for (var x = 50; x <= 800; x += 50) {
+          create_grid_line(x, 0, x, 800);
+        }
+        for (var y = 50; y <= 800; y += 50) {
+          create_grid_line(0, y, 800, y);
+        }
+      }
 
-function set_state(new_state) {
-    ohm_state = new_state;
-    var toolbox = document.getElementById("toolbox");
-    for (let tool of toolbox.children) {
-        if (tool.id === ohm_state) {
+      function set_state(new_state) {
+        ohm_state = new_state;
+        var toolbox = document.getElementById("toolbox");
+        for (let tool of toolbox.children) {
+          if (tool.id === ohm_state) {
             tool.classList.add("active_tool");
-        } else {
+          } else {
             tool.classList.remove("active_tool");
+          }
         }
-    }
-}
+      }
 
-function round_to_grid(pos) {
-    return Math.round(pos / 50) * 50;
-}
+      function round_to_grid(pos) {
+        return Math.round(pos / 50) * 50;
+      }
 
-function save_tool() {
-    alert("Save is not implemented (yet)!");
-}
+      function save_tool() {
+        alert("Save is not implemented (yet)!");
+      }
 
-function load_tool() {
-    alert("Load is not implemented (yet)!");
-}
+      function load_tool() {
+        alert("Load is not implemented (yet)!");
+      }
 
-function share_tool() {
-    alert("Share is not implemented (yet)!");
-}
+      function share_tool() {
+        alert("Share is not implemented (yet)!");
+      }
 
-function wire_tool() {
-    set_state("wire");
-}
+      function wire_tool() {
+        set_state("wire");
+      }
 
-function circle_tool() {
-    set_state("circle");
-}
+      function circle_tool() {
+        set_state("circle");
+      }
 
-function component_tool() {
-    set_state("component");
-}
+      function component_tool() {
+        set_state("component");
+      }
 
-function text_tool() {
-    set_state("text");
-}
+      function text_tool() {
+        set_state("text");
+      }
 
-function rectangle_tool() {
-    set_state("rectangle");
-}
+      function rectangle_tool() {
+        set_state("rectangle");
+      }
 
-function delete_tool() {
-    set_state("delete");
-}
+      function delete_tool() {
+        set_state("delete");
+      }
 
-function copy_tool() {
-    set_state("copy");
-}
+      function copy_tool() {
+        set_state("copy");
+      }
 
-function circle_exists(x, y) {
-    var drawing = document.getElementById("drawing");
+      function circle_exists(x, y) {
+        var drawing = document.getElementById("drawing");
 
-    for (let element of drawing.children) {
-        // console.log(element.tagName);
-        if (element.tagName === "circle" &&
-            element.getAttribute("cx") === x &&
-            element.getAttribute("cy") === y &&
-            element.getAttribute("r") === "10") {
+        for (let element of drawing.children) {
+          // console.log(element.tagName);
+          if (element.tagName === "circle" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
             return true;
+          }
         }
-    }
-    return false;
-}
+        return false;
+      }
 
-function place_circle(x, y) {
-    var x = "" + round_to_grid(x);
-    var y = "" + round_to_grid(y);
+      function place_circle(x, y) {
+        var x = "" + round_to_grid(x);
+        var y = "" + round_to_grid(y);
 
-    if (circle_exists(x, y)) {
-        return;
-    }
-    // console.log("X: " + x + " Y: " + y);
-    var drawing = document.getElementById("drawing");
-    var circle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
-    circle.setAttribute("cx", x);
-    circle.setAttribute("cy", y);
-    circle.setAttribute("r", "10");
-    circle.setAttribute("fill", "black");
-    drawing.appendChild(circle);
-}
+        if (circle_exists(x, y)) {
+          return;
+        }
+        // console.log("X: " + x + " Y: " + y);
+        var drawing = document.getElementById("drawing");
+        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+        circle.setAttribute("r", "10");
+        circle.setAttribute("fill", "black");
+        drawing.appendChild(circle);
+      }
 
-function place_wire(wire, id) {
-    start_x = "" + round_to_grid(wire.start_x);
-    start_y = "" + round_to_grid(wire.start_y);
-    end_x = "" + round_to_grid(wire.end_x);
-    end_y = "" + round_to_grid(wire.end_y);
+      function place_wire(wire, id) {
+        start_x = "" + round_to_grid(wire.start_x);
+        start_y = "" + round_to_grid(wire.start_y);
+        end_x = "" + round_to_grid(wire.end_x);
+        end_y = "" + round_to_grid(wire.end_y);
 
-    var drawing = document.getElementById("drawing");
-    var line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
-    line.setAttribute("x1", start_x);
-    line.setAttribute("y1", start_y);
-    line.setAttribute("x2", end_x);
-    line.setAttribute("y2", end_y);
-    line.setAttribute("id", id);
-    line.setAttribute("stroke", "black");
-    if (id === "tmp_wire") {
-        line.setAttribute("stroke", "blue");
-    }
-    line.setAttribute("stroke-width", "10");
-    drawing.appendChild(line);
-}
+        var drawing = document.getElementById("drawing");
+        var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", start_x);
+        line.setAttribute("y1", start_y);
+        line.setAttribute("x2", end_x);
+        line.setAttribute("y2", end_y);
+        line.setAttribute("id", id);
+        line.setAttribute("stroke", "black");
+        if (id === "tmp_wire") {
+          line.setAttribute("stroke", "blue");
+        }
+        line.setAttribute("stroke-width", "10");
+        drawing.appendChild(line);
+      }
 
-function update_wire_svg() {
-    if (tmp_wire === null) {
-        // Nothing to update
-    } else {
-        let element = document.getElementById("tmp_wire");
-        if (!element) {
+      function update_wire_svg() {
+        if (tmp_wire === null) {
+          // Nothing to update
+        } else {
+          let element = document.getElementById("tmp_wire");
+          if (!element) {
             return;
+          }
+          element.setAttribute("x2", tmp_wire.end_x);
+          element.setAttribute("y2", tmp_wire.end_y);
         }
-        element.setAttribute("x2", tmp_wire.end_x);
-        element.setAttribute("y2", tmp_wire.end_y);
-    }
-}
+      }
 
-function wire_start(x, y) {
-    tmp_wire = {
-        "start_x": x,
-        "start_y": y,
-        "end_x": x,
-        "end_y": y
-    };
+      function wire_start(x, y) {
+        tmp_wire = {
+          start_x: x,
+          start_y: y,
+          end_x: x,
+          end_y: y
+        };
 
-    place_wire(tmp_wire, "tmp_wire");
-    update_wire_svg();
-}
+        place_wire(tmp_wire, "tmp_wire");
+        update_wire_svg();
+      }
 
-function wire_move(x, y) {
-    if (tmp_wire === null) {
-        return;
-    }
-    tmp_wire.end_x = x;
-    tmp_wire.end_y = y;
-    update_wire_svg();
-}
+      function wire_move(x, y) {
+        if (tmp_wire === null) {
+          return;
+        }
+        tmp_wire.end_x = x;
+        tmp_wire.end_y = y;
+        update_wire_svg();
+      }
 
-function wire_end() {
-    let element = document.getElementById("tmp_wire");
-    element.setAttribute("id", "wire");
-    element.setAttribute("stroke", "black");
-    tmp_wire = null;
-    update_wire_svg();
-}
+      function wire_end() {
+        let element = document.getElementById("tmp_wire");
+        element.setAttribute("id", "wire");
+        element.setAttribute("stroke", "black");
+        tmp_wire = null;
+        update_wire_svg();
+      }
 
-function wire_click(x, y) {
-    if (tmp_wire === null) {
-        wire_start(x, y);
-    } else {
-        wire_end();
-    }
-}
+      function wire_click(x, y) {
+        if (tmp_wire === null) {
+          wire_start(x, y);
+        } else {
+          wire_end();
+        }
+      }
 
-function draw_mouse_down(event) {
-    x = round_to_grid(event.offsetX);
-    y = round_to_grid(event.offsetY);
-    if (ohm_state === "circle") {
-        place_circle(x, y);
-    } else if (ohm_state === "wire") {
-        wire_click(x, y);
-    }
-}
+      function draw_mouse_down(event) {
+        x = round_to_grid(event.offsetX);
+        y = round_to_grid(event.offsetY);
+        if (ohm_state === "circle") {
+          place_circle(x, y);
+        } else if (ohm_state === "wire") {
+          wire_click(x, y);
+        }
+      }
 
-function draw_mouse_move(event) {
-    x = round_to_grid(event.offsetX);
-    y = round_to_grid(event.offsetY);
-    if (ohm_state === "wire") {
-        wire_move(x, y);
-    }
-}
-
+      function draw_mouse_move(event) {
+        x = round_to_grid(event.offsetX);
+        y = round_to_grid(event.offsetY);
+        if (ohm_state === "wire") {
+          wire_move(x, y);
+        }
+      }
     </script>
-</head>
-
-<body onload="init_ohm();">
+  </head>
+  <body onload="init_ohm();">
     <div class="sidebar">
-        <div class="sidebar_content">
-            <h1 class="toolheader">ohm</h1>
-            <div id="toolbox" class="toolbox">
-                <div class="tool" id="wire" onclick="wire_tool();"><svg class="tool_svg" data-feather="edit-2"></svg></div>
-                <div class="tool" id="circle" onclick="circle_tool();"><svg class="tool_svg" data-feather="circle"></svg></div>
-                <div class="tool" id="component" onclick="component_tool();"><svg class="tool_svg" data-feather="cpu"></svg></div>
-                <div class="tool" id="text" onclick="text_tool();"><svg class="tool_svg" data-feather="type"></svg></div>
-                <div class="tool" id="rectangle" onclick="rectangle_tool();"><svg class="tool_svg" data-feather="square"></svg></div>
-                <div class="tool" id="copy" onclick="copy_tool();"><svg class="tool_svg" data-feather="copy"></svg></div>
-                <div class="tool" id="delete" onclick="delete_tool();"><svg class="tool_svg" data-feather="x"></svg></div>
-                <div class="tool" id="save" onclick="save_tool();"><svg class="tool_svg" data-feather="save"></svg></div>
-                <div class="tool" id="load" onclick="load_tool();"><svg class="tool_svg" data-feather="upload"></svg></div>
-                <div class="tool" id="share" onclick="share_tool();"><svg class="tool_svg" data-feather="external-link"></svg></div>
-            </div>
+      <div class="sidebar_content">
+        <h1 class="toolheader">ohm</h1>
+        <div id="toolbox" class="toolbox">
+          <div class="tool" id="wire" onclick="wire_tool();"><svg class="tool_svg" data-feather="edit-2"></svg></div>
+          <div class="tool" id="circle" onclick="circle_tool();"><svg class="tool_svg" data-feather="circle"></svg></div>
+          <div class="tool" id="component" onclick="component_tool();"><svg class="tool_svg" data-feather="cpu"></svg></div>
+          <div class="tool" id="text" onclick="text_tool();"><svg class="tool_svg" data-feather="type"></svg></div>
+          <div class="tool" id="rectangle" onclick="rectangle_tool();"><svg class="tool_svg" data-feather="square"></svg></div>
+          <div class="tool" id="copy" onclick="copy_tool();"><svg class="tool_svg" data-feather="copy"></svg></div>
+          <div class="tool" id="delete" onclick="delete_tool();"><svg class="tool_svg" data-feather="x"></svg></div>
+          <div class="tool" id="save" onclick="save_tool();"><svg class="tool_svg" data-feather="save"></svg></div>
+          <div class="tool" id="load" onclick="load_tool();"><svg class="tool_svg" data-feather="upload"></svg></div>
+          <div class="tool" id="share" onclick="share_tool();"><svg class="tool_svg" data-feather="external-link"></svg></div>
         </div>
+      </div>
     </div>
     <svg id="drawing" width="600" height="600" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
-</body>
-<script>
-feather.replace()
-
-</script>
-
+  </body>
+  <script>
+    feather.replace();
+  </script>
 </html>
