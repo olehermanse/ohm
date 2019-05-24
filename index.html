@@ -103,6 +103,7 @@
         line.setAttribute("y1", "" + y1);
         line.setAttribute("x2", "" + x2);
         line.setAttribute("y2", "" + y2);
+        line.setAttribute("id", "grid_line");
         line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
         drawing.appendChild(line);
       }
@@ -132,8 +133,29 @@
         return Math.round(pos / 50) * 50;
       }
 
+      // From: https://gist.github.com/liabru/11263260#gistcomment-2894088
+      function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+      }
+
       function save_tool() {
-        alert("Save is not implemented (yet)!");
+        var drawing = document.getElementById("drawing").cloneNode(true);
+
+        while (drawing.getElementById("grid_line")) {
+          drawing.removeChild(drawing.getElementById("grid_line"));
+        }
+
+        var svg_text = drawing.outerHTML;
+        download("schematic.svg", svg_text);
       }
 
       function load_tool() {
