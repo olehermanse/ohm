@@ -182,7 +182,7 @@
         set_state("wire");
       }
 
-      function circle_tool() {
+      function dot_tool() {
         set_state("circle");
       }
 
@@ -206,7 +206,7 @@
         set_state("copy");
       }
 
-      function find_circle(x, y) {
+      function find_dot(x, y) {
         var drawing = document.getElementById("drawing");
 
         for (let element of drawing.children) {
@@ -217,21 +217,21 @@
         return null;
       }
 
-      function circle_exists(x, y) {
-        return find_circle(x, y) != null;
+      function dot_exists(x, y) {
+        return find_dot(x, y) != null;
       }
 
-      function place_circle(x, y) {
-        if (circle_exists(x, y)) {
+      function place_dot(x, y) {
+        if (dot_exists(x, y)) {
           return;
         }
         var drawing = document.getElementById("drawing");
-        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", x);
-        circle.setAttribute("cy", y);
-        circle.setAttribute("r", "10");
-        circle.setAttribute("fill", "black");
-        drawing.appendChild(circle);
+        var dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        dot.setAttribute("cx", x);
+        dot.setAttribute("cy", y);
+        dot.setAttribute("r", "10");
+        dot.setAttribute("fill", "black");
+        drawing.appendChild(dot);
       }
 
       function place_wire(wire, id) {
@@ -291,11 +291,11 @@
 
       function elements_to_delete(x, y) {
         var will_be_deleted = [];
-        var circle = find_circle(x, y);
+        var dot = find_dot(x, y);
         var drawing = document.getElementById("drawing");
 
-        if (circle) {
-          will_be_deleted.push(circle);
+        if (dot) {
+          will_be_deleted.push(dot);
         }
         return will_be_deleted;
       }
@@ -341,7 +341,7 @@
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
         if (ohm_state === "circle") {
-          place_circle(x, y);
+          place_dot(x, y);
         } else if (ohm_state === "wire") {
           wire_click(x, y);
         } else if (ohm_state === "delete") {
@@ -398,7 +398,7 @@
         <h1 class="toolheader">ohm</h1>
         <div id="toolbox" class="toolbox">
           <div title="Add wire" class="tool" id="wire" onclick="wire_tool();"><svg class="tool_svg" data-feather="edit-2"></svg></div>
-          <div title="Add dot" class="tool" id="circle" onclick="circle_tool();"><svg class="tool_svg" data-feather="circle"></svg></div>
+          <div title="Add dot" class="tool" id="dot" onclick="dot_tool();"><svg class="tool_svg" data-feather="circle"></svg></div>
           <div title="Add component" class="tool" id="component" onclick="component_tool();"><svg class="tool_svg" data-feather="cpu"></svg></div>
           <div title="Add text" class="tool" id="text" onclick="text_tool();"><svg class="tool_svg" data-feather="type"></svg></div>
           <div title="Add rectangle" class="tool" id="rectangle" onclick="rectangle_tool();"><svg class="tool_svg" data-feather="square"></svg></div>
