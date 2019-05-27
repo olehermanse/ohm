@@ -155,14 +155,16 @@
         document.body.removeChild(element);
       }
 
-      function save_tool() {
-        var drawing = document.getElementById("drawing").cloneNode(true);
-
+      function remove_grid_lines(drawing) {
         while (drawing.getElementById("grid_line")) {
           drawing.removeChild(drawing.getElementById("grid_line"));
         }
+      }
 
-        var svg_text = drawing.outerHTML;
+      function save_tool() {
+        var copy = document.getElementById("drawing").cloneNode(true);
+        remove_grid_lines(copy)
+        var svg_text = copy.outerHTML;
         download("schematic.svg", svg_text);
       }
 
