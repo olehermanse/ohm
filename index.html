@@ -94,6 +94,8 @@
       var tmp_wire = null;
 
       function init_ohm() {
+        document.onkeydown = key_down;
+
         var p = document.getElementById("drawing");
         p.onmousedown = draw_mouse_down;
         p.onmousemove = draw_mouse_move;
@@ -354,6 +356,38 @@
           wire_move(x, y);
         } else if (ohm_state === "delete") {
           delete_move(x, y);
+        }
+      }
+
+      function refresh_grid_lines() {
+        var drawing = document.getElementById("drawing");
+        remove_grid_lines(drawing);
+        init_grid();
+      }
+
+      function resize(operation) {
+        var drawing = document.getElementById("drawing");
+        var svg_width = Number(drawing.getAttribute("width"));
+        var svg_height = Number(drawing.getAttribute("height"));
+        if (operation === "+") {
+          svg_width += 50;
+          svg_height += 50;
+        } else if (operation === "-") {
+          svg_width -= 50;
+          svg_height -= 50;
+        } else {
+          console.log("Error: bad resize - " + operation);
+        }
+        drawing.setAttribute("width", "" + svg_width);
+        drawing.setAttribute("height", "" + svg_height);
+
+        refresh_grid_lines();
+      }
+
+      function key_down(event) {
+        var key = event.key;
+        if (key === "+" || key === "-") {
+          resize(key);
         }
       }
     </script>
