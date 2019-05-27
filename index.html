@@ -22,6 +22,11 @@
         font-size: 1.5em;
       }
 
+      h1>a { /* Link inside header 1 (ohm logo/title) */
+        color: inherit; /* Inherits from sidebar div */
+        text-decoration: none;
+      }
+
       .sidebar {
         height: 100vh;
         min-height: 600px;
@@ -396,7 +401,7 @@
   <body onload="init_ohm();">
     <div class="sidebar">
       <div class="sidebar_content">
-        <h1 class="toolheader">ohm</h1>
+        <h1 class="toolheader"><a href="https://ohm.oleherman.com/">ohm</a></h1>
         <div id="toolbox" class="toolbox">
           <div title="Add wire" class="tool" id="wire" onclick="wire_tool();"><svg class="tool_svg" data-feather="edit-2"></svg></div>
           <div title="Add dot" class="tool" id="dot" onclick="dot_tool();"><svg class="tool_svg" data-feather="circle"></svg></div>
