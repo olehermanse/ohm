@@ -165,7 +165,7 @@
 
       function save_tool() {
         var copy = document.getElementById("drawing").cloneNode(true);
-        remove_grid_lines(copy)
+        remove_grid_lines(copy);
         var svg_text = copy.outerHTML;
         download("schematic.svg", svg_text);
       }
