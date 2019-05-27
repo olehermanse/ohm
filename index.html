@@ -95,7 +95,7 @@
       }
     </style>
     <script>
-      var ohm_state = "dot";
+      var active_tool = "dot";
       var tmp_wire = null;
 
       function init_ohm() {
@@ -105,7 +105,7 @@
         p.onmousedown = draw_mouse_down;
         p.onmousemove = draw_mouse_move;
         init_grid();
-        set_state(ohm_state);
+        activate_tool(active_tool);
       }
 
       function create_grid_line(x1, y1, x2, y2) {
@@ -132,11 +132,11 @@
         }
       }
 
-      function set_state(new_state) {
-        ohm_state = new_state;
+      function activate_tool(new_state) {
+        active_tool = new_state;
         var toolbox = document.getElementById("toolbox");
         for (let tool of toolbox.children) {
-          if (tool.id === ohm_state) {
+          if (tool.id === active_tool) {
             tool.classList.add("active_tool");
           } else {
             tool.classList.remove("active_tool");
@@ -184,31 +184,31 @@
       }
 
       function wire_tool() {
-        set_state("wire");
+        activate_tool("wire");
       }
 
       function dot_tool() {
-        set_state("dot");
+        activate_tool("dot");
       }
 
       function component_tool() {
-        set_state("component");
+        activate_tool("component");
       }
 
       function text_tool() {
-        set_state("text");
+        activate_tool("text");
       }
 
       function rectangle_tool() {
-        set_state("rectangle");
+        activate_tool("rectangle");
       }
 
       function delete_tool() {
-        set_state("delete");
+        activate_tool("delete");
       }
 
       function copy_tool() {
-        set_state("copy");
+        activate_tool("copy");
       }
 
       function find_dot(x, y) {
@@ -346,11 +346,11 @@
       function draw_mouse_down(event) {
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
-        if (ohm_state === "circle") {
+        if (active_tool === "circle") {
           place_dot(x, y);
-        } else if (ohm_state === "wire") {
+        } else if (active_tool === "wire") {
           wire_click(x, y);
-        } else if (ohm_state === "delete") {
+        } else if (active_tool === "delete") {
           delete_click(x, y);
         }
       }
@@ -358,9 +358,9 @@
       function draw_mouse_move(event) {
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
-        if (ohm_state === "wire") {
+        if (active_tool === "wire") {
           wire_move(x, y);
-        } else if (ohm_state === "delete") {
+        } else if (active_tool === "delete") {
           delete_move(x, y);
         }
       }
