@@ -119,10 +119,10 @@
         var drawing = document.getElementById("drawing");
         var svg_width = Number(drawing.getAttribute("width"));
         var svg_height = Number(drawing.getAttribute("height"));
-        for (var x = 50; x <= svg_width; x += 50) {
+        for (var x = 50; x < svg_width; x += 50) {
           create_grid_line(x, 0, x, svg_width);
         }
-        for (var y = 50; y <= svg_height; y += 50) {
+        for (var y = 50; y < svg_height; y += 50) {
           create_grid_line(0, y, svg_height, y);
         }
       }
