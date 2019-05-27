@@ -122,8 +122,8 @@
         document.onkeydown = key_down;
 
         var p = document.getElementById("drawing");
-        p.onmousedown = draw_mouse_down;
-        p.onmousemove = draw_mouse_move;
+        p.onmousedown = drawing_mouse_down;
+        p.onmousemove = drawing_mouse_move;
         init_grid();
         activate_tool(active_tool);
       }
@@ -306,7 +306,7 @@
         update_wire_svg();
       }
 
-      function wire_move(x, y) {
+      function drawing_wire_hover(x, y) {
         if (tmp_wire === null) {
           return;
         }
@@ -326,7 +326,7 @@
         return will_be_deleted;
       }
 
-      function delete_click(x, y) {
+      function drawing_delete_click(x, y) {
         var elements = elements_to_delete(x, y);
 
         for (let element of elements) {
@@ -334,7 +334,7 @@
         }
       }
 
-      function delete_move(x, y) {
+      function drawing_delete_hover(x, y) {
         var to_delete = elements_to_delete(x, y);
         var drawing = document.getElementById("drawing");
 
@@ -355,7 +355,7 @@
         update_wire_svg();
       }
 
-      function wire_click(x, y) {
+      function drawing_wire_click(x, y) {
         if (tmp_wire === null) {
           wire_start(x, y);
         } else {
@@ -363,25 +363,25 @@
         }
       }
 
-      function draw_mouse_down(event) {
+      function drawing_mouse_down(event) {
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
-        if (active_tool === "circle") {
+        if (active_tool === "dot") {
           place_dot(x, y);
         } else if (active_tool === "wire") {
-          wire_click(x, y);
+          drawing_wire_click(x, y);
         } else if (active_tool === "delete") {
-          delete_click(x, y);
+          drawing_delete_click(x, y);
         }
       }
 
-      function draw_mouse_move(event) {
+      function drawing_mouse_move(event) {
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
         if (active_tool === "wire") {
-          wire_move(x, y);
+          drawing_wire_hover(x, y);
         } else if (active_tool === "delete") {
-          delete_move(x, y);
+          drawing_delete_hover(x, y);
         }
       }
 
