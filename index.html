@@ -234,24 +234,26 @@
         drawing.appendChild(dot);
       }
 
-      function place_wire(wire, id) {
-        start_x = "" + round_to_grid(wire.start_x);
-        start_y = "" + round_to_grid(wire.start_y);
-        end_x = "" + round_to_grid(wire.end_x);
-        end_y = "" + round_to_grid(wire.end_y);
+      function create_points(wire) {
+        var x1 = "" + round_to_grid(wire.start_x);
+        var y1 = "" + round_to_grid(wire.start_y);
+        var x2 = "" + round_to_grid(wire.end_x);
+        var y2 = "" + round_to_grid(wire.end_y);
+        var points = "" + x1 + "," + y1 + " " + x2 + "," + y2;
+        return points;
+      }
 
+      function place_wire(wire, id) {
         var drawing = document.getElementById("drawing");
-        var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", start_x);
-        line.setAttribute("y1", start_y);
-        line.setAttribute("x2", end_x);
-        line.setAttribute("y2", end_y);
+        var line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        line.setAttribute("points", create_points(wire));
         line.setAttribute("id", id);
+        line.setAttribute("stroke-width", "10");
+        line.setAttribute("fill", "none");
         line.setAttribute("stroke", "black");
         if (id === "tmp_wire") {
           line.setAttribute("stroke", "blue");
         }
-        line.setAttribute("stroke-width", "10");
         drawing.appendChild(line);
       }
 
@@ -263,8 +265,7 @@
           if (!element) {
             return;
           }
-          element.setAttribute("x2", tmp_wire.end_x);
-          element.setAttribute("y2", tmp_wire.end_y);
+          element.setAttribute("points", create_points(tmp_wire));
         }
       }
 
