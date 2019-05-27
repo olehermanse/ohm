@@ -115,6 +115,8 @@
       }
     </style>
     <script>
+      // Global state:
+
       var active_tool = "dot";
       var tmp_wire = null;
 
@@ -126,30 +128,6 @@
         p.onmousemove = drawing_mouse_move;
         init_grid();
         activate_tool(active_tool);
-      }
-
-      function create_grid_line(x1, y1, x2, y2) {
-        var drawing = document.getElementById("drawing");
-        var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", "" + x1);
-        line.setAttribute("y1", "" + y1);
-        line.setAttribute("x2", "" + x2);
-        line.setAttribute("y2", "" + y2);
-        line.setAttribute("id", "grid_line");
-        line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
-        drawing.appendChild(line);
-      }
-
-      function init_grid() {
-        var drawing = document.getElementById("drawing");
-        var svg_width = Number(drawing.getAttribute("width"));
-        var svg_height = Number(drawing.getAttribute("height"));
-        for (var x = 50; x < svg_width; x += 50) {
-          create_grid_line(x, 0, x, svg_width);
-        }
-        for (var y = 50; y < svg_height; y += 50) {
-          create_grid_line(0, y, svg_height, y);
-        }
       }
 
       function activate_tool(new_state) {
@@ -164,22 +142,34 @@
         }
       }
 
+      // Grid functions:
+
       function round_to_grid(pos) {
         return Math.round(pos / 50) * 50;
       }
 
-      // From: https://gist.github.com/liabru/11263260#gistcomment-2894088
-      function download(filename, text) {
-        var element = document.createElement("a");
-        element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
-        element.setAttribute("download", filename);
+      function init_grid() {
+        var drawing = document.getElementById("drawing");
+        var svg_width = Number(drawing.getAttribute("width"));
+        var svg_height = Number(drawing.getAttribute("height"));
+        for (var x = 50; x < svg_width; x += 50) {
+          create_grid_line(x, 0, x, svg_width);
+        }
+        for (var y = 50; y < svg_height; y += 50) {
+          create_grid_line(0, y, svg_height, y);
+        }
+      }
 
-        element.style.display = "none";
-        document.body.appendChild(element);
-
-        element.click();
-
-        document.body.removeChild(element);
+      function create_grid_line(x1, y1, x2, y2) {
+        var drawing = document.getElementById("drawing");
+        var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", "" + x1);
+        line.setAttribute("y1", "" + y1);
+        line.setAttribute("x2", "" + x2);
+        line.setAttribute("y2", "" + y2);
+        line.setAttribute("id", "grid_line");
+        line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
+        drawing.appendChild(line);
       }
 
       function remove_grid_lines(drawing) {
@@ -188,20 +178,65 @@
         }
       }
 
-      function save_click() {
-        var copy = document.getElementById("drawing").cloneNode(true);
-        remove_grid_lines(copy);
-        var svg_text = copy.outerHTML;
-        download("schematic.svg", svg_text);
+      function refresh_grid_lines() {
+        var drawing = document.getElementById("drawing");
+        remove_grid_lines(drawing);
+        init_grid();
       }
 
-      function load_click() {
-        alert("Load is not implemented (yet)!");
+      function resize(operation) {
+        var drawing = document.getElementById("drawing");
+        var svg_width = Number(drawing.getAttribute("width"));
+        var svg_height = Number(drawing.getAttribute("height"));
+        if (operation === "+") {
+          svg_width += 50;
+          svg_height += 50;
+        } else if (operation === "-") {
+          svg_width -= 50;
+          svg_height -= 50;
+        } else {
+          console.log("Error: bad resize - " + operation);
+        }
+        drawing.setAttribute("width", "" + svg_width);
+        drawing.setAttribute("height", "" + svg_height);
+
+        refresh_grid_lines();
       }
 
-      function share_click() {
-        alert("Share is not implemented (yet)!");
+      // Mouse events:
+
+      function drawing_mouse_down(event) {
+        x = "" + round_to_grid(event.offsetX);
+        y = "" + round_to_grid(event.offsetY);
+        if (active_tool === "dot") {
+          place_dot(x, y);
+        } else if (active_tool === "wire") {
+          drawing_wire_click(x, y);
+        } else if (active_tool === "delete") {
+          drawing_delete_click(x, y);
+        }
       }
+
+      function drawing_mouse_move(event) {
+        x = "" + round_to_grid(event.offsetX);
+        y = "" + round_to_grid(event.offsetY);
+        if (active_tool === "wire") {
+          drawing_wire_hover(x, y);
+        } else if (active_tool === "delete") {
+          drawing_delete_hover(x, y);
+        }
+      }
+
+      // Keyboard events:
+
+      function key_down(event) {
+        var key = event.key;
+        if (key === "+" || key === "-") {
+          resize(key);
+        }
+      }
+
+      // Toolbar click functions:
 
       function wire_click() {
         activate_tool("wire");
@@ -231,6 +266,38 @@
         activate_tool("copy");
       }
 
+      function save_click() {
+        var copy = document.getElementById("drawing").cloneNode(true);
+        remove_grid_lines(copy);
+        var svg_text = copy.outerHTML;
+        download("schematic.svg", svg_text);
+      }
+
+      function load_click() {
+        alert("Load is not implemented (yet)!");
+      }
+
+      function share_click() {
+        alert("Share is not implemented (yet)!");
+      }
+
+      // Save functionality:
+      // From: https://gist.github.com/liabru/11263260#gistcomment-2894088
+      function download(filename, text) {
+        var element = document.createElement("a");
+        element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
+        element.setAttribute("download", filename);
+
+        element.style.display = "none";
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+      }
+
+      // Dot functionality:
+
       function find_dot(x, y) {
         var drawing = document.getElementById("drawing");
 
@@ -259,61 +326,7 @@
         drawing.appendChild(dot);
       }
 
-      function create_points(wire) {
-        var x1 = "" + round_to_grid(wire.start_x);
-        var y1 = "" + round_to_grid(wire.start_y);
-        var x2 = "" + round_to_grid(wire.end_x);
-        var y2 = "" + round_to_grid(wire.end_y);
-        var points = "" + x1 + "," + y1 + " " + x2 + "," + y2;
-        return points;
-      }
-
-      function place_wire(wire, id) {
-        var drawing = document.getElementById("drawing");
-        var line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-        line.setAttribute("points", create_points(wire));
-        line.setAttribute("id", id);
-        line.setAttribute("stroke-width", "10");
-        line.setAttribute("fill", "none");
-        line.setAttribute("stroke", "black");
-        if (id === "tmp_wire") {
-          line.setAttribute("stroke", "blue");
-        }
-        drawing.appendChild(line);
-      }
-
-      function update_wire_svg() {
-        if (tmp_wire === null) {
-          // Nothing to update
-        } else {
-          let element = document.getElementById("tmp_wire");
-          if (!element) {
-            return;
-          }
-          element.setAttribute("points", create_points(tmp_wire));
-        }
-      }
-
-      function wire_start(x, y) {
-        tmp_wire = {
-          start_x: x,
-          start_y: y,
-          end_x: x,
-          end_y: y
-        };
-
-        place_wire(tmp_wire, "tmp_wire");
-        update_wire_svg();
-      }
-
-      function drawing_wire_hover(x, y) {
-        if (tmp_wire === null) {
-          return;
-        }
-        tmp_wire.end_x = x;
-        tmp_wire.end_y = y;
-        update_wire_svg();
-      }
+      // Delete functionality:
 
       function elements_to_delete(x, y) {
         var will_be_deleted = [];
@@ -347,13 +360,7 @@
         }
       }
 
-      function wire_end() {
-        let element = document.getElementById("tmp_wire");
-        element.setAttribute("id", "wire");
-        element.setAttribute("stroke", "black");
-        tmp_wire = null;
-        update_wire_svg();
-      }
+      // Wire tool:
 
       function drawing_wire_click(x, y) {
         if (tmp_wire === null) {
@@ -363,58 +370,68 @@
         }
       }
 
-      function drawing_mouse_down(event) {
-        x = "" + round_to_grid(event.offsetX);
-        y = "" + round_to_grid(event.offsetY);
-        if (active_tool === "dot") {
-          place_dot(x, y);
-        } else if (active_tool === "wire") {
-          drawing_wire_click(x, y);
-        } else if (active_tool === "delete") {
-          drawing_delete_click(x, y);
+      function drawing_wire_hover(x, y) {
+        if (tmp_wire === null) {
+          return;
         }
+        tmp_wire.end_x = x;
+        tmp_wire.end_y = y;
+        update_wire_svg();
       }
 
-      function drawing_mouse_move(event) {
-        x = "" + round_to_grid(event.offsetX);
-        y = "" + round_to_grid(event.offsetY);
-        if (active_tool === "wire") {
-          drawing_wire_hover(x, y);
-        } else if (active_tool === "delete") {
-          drawing_delete_hover(x, y);
-        }
-      }
-
-      function refresh_grid_lines() {
-        var drawing = document.getElementById("drawing");
-        remove_grid_lines(drawing);
-        init_grid();
-      }
-
-      function resize(operation) {
-        var drawing = document.getElementById("drawing");
-        var svg_width = Number(drawing.getAttribute("width"));
-        var svg_height = Number(drawing.getAttribute("height"));
-        if (operation === "+") {
-          svg_width += 50;
-          svg_height += 50;
-        } else if (operation === "-") {
-          svg_width -= 50;
-          svg_height -= 50;
+      function update_wire_svg() {
+        if (tmp_wire === null) {
+          // Nothing to update
         } else {
-          console.log("Error: bad resize - " + operation);
+          let element = document.getElementById("tmp_wire");
+          if (!element) {
+            return;
+          }
+          element.setAttribute("points", create_points(tmp_wire));
         }
-        drawing.setAttribute("width", "" + svg_width);
-        drawing.setAttribute("height", "" + svg_height);
-
-        refresh_grid_lines();
       }
 
-      function key_down(event) {
-        var key = event.key;
-        if (key === "+" || key === "-") {
-          resize(key);
+      function wire_start(x, y) {
+        tmp_wire = {
+          start_x: x,
+          start_y: y,
+          end_x: x,
+          end_y: y
+        };
+
+        place_wire(tmp_wire, "tmp_wire");
+        update_wire_svg();
+      }
+
+      function wire_end() {
+        let element = document.getElementById("tmp_wire");
+        element.setAttribute("id", "wire");
+        element.setAttribute("stroke", "black");
+        tmp_wire = null;
+        update_wire_svg();
+      }
+
+      function create_points(wire) {
+        var x1 = "" + round_to_grid(wire.start_x);
+        var y1 = "" + round_to_grid(wire.start_y);
+        var x2 = "" + round_to_grid(wire.end_x);
+        var y2 = "" + round_to_grid(wire.end_y);
+        var points = "" + x1 + "," + y1 + " " + x2 + "," + y2;
+        return points;
+      }
+
+      function place_wire(wire, id) {
+        var drawing = document.getElementById("drawing");
+        var line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        line.setAttribute("points", create_points(wire));
+        line.setAttribute("id", id);
+        line.setAttribute("stroke-width", "10");
+        line.setAttribute("fill", "none");
+        line.setAttribute("stroke", "black");
+        if (id === "tmp_wire") {
+          line.setAttribute("stroke", "blue");
         }
+        drawing.appendChild(line);
       }
     </script>
   </head>
