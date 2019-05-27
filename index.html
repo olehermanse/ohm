@@ -386,7 +386,7 @@
           if (!element) {
             return;
           }
-          element.setAttribute("points", create_points(tmp_wire));
+          element.setAttribute("points", create_points_str(tmp_wire));
         }
       }
 
@@ -410,7 +410,7 @@
         update_wire_svg();
       }
 
-      function create_points(wire) {
+      function create_points_str(wire) {
         var x1 = "" + round_to_grid(wire.start_x);
         var y1 = "" + round_to_grid(wire.start_y);
         var x2 = "" + round_to_grid(wire.end_x);
@@ -422,7 +422,7 @@
       function place_wire(wire, id) {
         var drawing = document.getElementById("drawing");
         var line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-        line.setAttribute("points", create_points(wire));
+        line.setAttribute("points", create_points_str(wire));
         line.setAttribute("id", id);
         line.setAttribute("stroke-width", "10");
         line.setAttribute("fill", "none");
