@@ -32,7 +32,7 @@
       .sidebar {
         height: 100vh;
         min-height: 600px;
-        width: 90px;
+        min-width: 90px;
         background-color: #ececec;
         color: #4a4a4a;
         display: flex;
@@ -62,11 +62,15 @@
 
       .tool {
         flex: 1 1 auto;
-        width: 36;
+        min-width: 36;
         height: 36;
         display: flex;
         justify-content: center;
         align-items: center;
+      }
+
+      .tool>div {
+        padding: 1em;
       }
 
       .active_tool {
@@ -74,14 +78,26 @@
       }
 
       .tool_svg {
-        width: 28;
+        min-width: 28;
         height: 28;
+        text-align: center;
       }
 
       .tool_svg:hover {
-        width: 36;
-        height: 36;
         cursor: pointer;
+      }
+
+      /* Only if tool is feather svg: */
+      svg.tool_svg:hover {
+        min-width: 36;
+        height: 36;
+      }
+
+      /* tools are div when offline: */
+      div.tool_svg:hover {
+        /* The size of the sidebar is based on the biggest element,
+            thus, use italic for feedback since it doesn't change width: */
+        font-style: italic;
       }
 
       .delete {
@@ -405,16 +421,36 @@
       <div class="sidebar_content">
         <h1 class="toolheader"><a href="https://ohm.oleherman.com/">ohm</a></h1>
         <div id="toolbox" class="toolbox">
-          <div title="Add wire" class="tool" id="wire" onclick="wire_click();"><svg class="tool_svg" data-feather="edit-2"></svg></div>
-          <div title="Add dot" class="tool" id="dot" onclick="dot_click();"><svg class="tool_svg" data-feather="circle"></svg></div>
-          <div title="Add component" class="tool" id="component" onclick="component_click();"><svg class="tool_svg" data-feather="cpu"></svg></div>
-          <div title="Add text" class="tool" id="text" onclick="text_click();"><svg class="tool_svg" data-feather="type"></svg></div>
-          <div title="Add rectangle" class="tool" id="rectangle" onclick="rectangle_click();"><svg class="tool_svg" data-feather="square"></svg></div>
-          <div title="Copy" class="tool" id="copy" onclick="copy_click();"><svg class="tool_svg" data-feather="copy"></svg></div>
-          <div title="Delete object" class="tool" id="delete" onclick="delete_click();"><svg class="tool_svg" data-feather="x"></svg></div>
-          <div title="Save" class="tool" id="save" onclick="save_click();"><svg class="tool_svg" data-feather="save"></svg></div>
-          <div title="Load" class="tool" id="load" onclick="load_click();"><svg class="tool_svg" data-feather="upload"></svg></div>
-          <div title="Share" class="tool" id="share" onclick="share_click();"><svg class="tool_svg" data-feather="external-link"></svg></div>
+          <div title="Add wire" class="tool" id="wire" onclick="wire_click();">
+            <div class="tool_svg" data-feather="edit-2">Wire</div>
+          </div>
+          <div title="Add dot" class="tool" id="dot" onclick="dot_click();">
+            <div class="tool_svg" data-feather="circle">Dot</div>
+          </div>
+          <div title="Add component" class="tool" id="component" onclick="component_click();">
+            <div class="tool_svg" data-feather="cpu">Component</div>
+          </div>
+          <div title="Add text" class="tool" id="text" onclick="text_click();">
+            <div class="tool_svg" data-feather="type">Text</div>
+          </div>
+          <div title="Add rectangle" class="tool" id="rectangle" onclick="rectangle_click();">
+            <div class="tool_svg" data-feather="square">Rectangle</div>
+          </div>
+          <div title="Copy" class="tool" id="copy" onclick="copy_click();">
+            <div class="tool_svg" data-feather="copy">Copy</div>
+          </div>
+          <div title="Delete object" class="tool" id="delete" onclick="delete_click();">
+            <div class="tool_svg" data-feather="x">Delete</div>
+          </div>
+          <div title="Save" class="tool" id="save" onclick="save_click();">
+            <div class="tool_svg" data-feather="save">Save</div>
+          </div>
+          <div title="Load" class="tool" id="load" onclick="load_click();">
+            <div class="tool_svg" data-feather="upload">Load</div>
+          </div>
+          <div title="Share" class="tool" id="share" onclick="share_click();">
+            <div class="tool_svg" data-feather="external-link">Share</div>
+          </div>
         </div>
       </div>
     </div>
