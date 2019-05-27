@@ -328,13 +328,52 @@
 
       // Delete functionality:
 
+      function get_points(polyline) {
+        var points = polyline.getAttribute("points").split(" ");
+        var results = [];
+        for (let point of points) {
+          var coordinates = point.split(",");
+          var x = coordinates[0];
+          var y = coordinates[1];
+          results.push({
+            "x": x,
+            "y": y
+          });
+        }
+        return results;
+      }
+
+      function find_wires(x, y) {
+        var matches = [];
+        var drawing = document.getElementById("drawing");
+
+        for (let element of drawing.children) {
+          if (element.tagName === "polyline") {
+            var points = get_points(element);
+            for (let point of points) {
+              if (x === point.x && y === point.y) {
+                matches.push(element);
+                break; // Break out of points loop, continue to next element
+              }
+            }
+          }
+        }
+        return matches;
+      }
+
       function elements_to_delete(x, y) {
         var will_be_deleted = [];
-        var dot = find_dot(x, y);
 
+        var dot = find_dot(x, y);
         if (dot) {
           will_be_deleted.push(dot);
         }
+
+        var wires = find_wires(x, y);
+        for (let wire of wires) {
+          will_be_deleted.push(wire);
+        }
+
         return will_be_deleted;
       }
 
