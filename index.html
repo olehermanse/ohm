@@ -67,6 +67,11 @@
         cursor: pointer;
       }
 
+      .delete {
+        fill: red;
+        stroke: red;
+      }
+
       body {
         background-color: #f2f2f2;
         display: flex;
@@ -194,26 +199,25 @@
         set_state("copy");
       }
 
-      function circle_exists(x, y) {
+      function find_circle(x, y) {
         var drawing = document.getElementById("drawing");
 
         for (let element of drawing.children) {
-          // console.log(element.tagName);
           if (element.tagName === "circle" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
-            return true;
+            return element;
           }
         }
-        return false;
+        return null;
+      }
+
+      function circle_exists(x, y) {
+        return find_circle(x, y) != null;
       }
 
       function place_circle(x, y) {
-        var x = "" + round_to_grid(x);
-        var y = "" + round_to_grid(y);
-
         if (circle_exists(x, y)) {
           return;
         }
-        // console.log("X: " + x + " Y: " + y);
         var drawing = document.getElementById("drawing");
         var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", x);
@@ -278,6 +282,38 @@
         update_wire_svg();
       }
 
+      function elements_to_delete(x, y) {
+        var will_be_deleted = [];
+        var circle = find_circle(x, y);
+        var drawing = document.getElementById("drawing");
+
+        if (circle) {
+          will_be_deleted.push(circle);
+        }
+        return will_be_deleted;
+      }
+
+      function delete_click(x, y) {
+        var elements = elements_to_delete(x, y);
+
+        for (let element of elements) {
+          element.remove();
+        }
+      }
+
+      function delete_move(x, y) {
+        var to_delete = elements_to_delete(x, y);
+        var drawing = document.getElementById("drawing");
+
+        for (let element of drawing.children) {
+          if (to_delete.includes(element)) {
+            element.classList.add("delete");
+          } else {
+            element.classList.remove("delete");
+          }
+        }
+      }
+
       function wire_end() {
         let element = document.getElementById("tmp_wire");
         element.setAttribute("id", "wire");
@@ -295,20 +331,24 @@
       }
 
       function draw_mouse_down(event) {
-        x = round_to_grid(event.offsetX);
-        y = round_to_grid(event.offsetY);
+        x = "" + round_to_grid(event.offsetX);
+        y = "" + round_to_grid(event.offsetY);
         if (ohm_state === "circle") {
           place_circle(x, y);
         } else if (ohm_state === "wire") {
           wire_click(x, y);
+        } else if (ohm_state === "delete") {
+          delete_click(x, y);
         }
       }
 
       function draw_mouse_move(event) {
-        x = round_to_grid(event.offsetX);
-        y = round_to_grid(event.offsetY);
+        x = "" + round_to_grid(event.offsetX);
+        y = "" + round_to_grid(event.offsetY);
         if (ohm_state === "wire") {
           wire_move(x, y);
+        } else if (ohm_state === "delete") {
+          delete_move(x, y);
         }
       }
     </script>
