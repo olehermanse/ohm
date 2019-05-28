@@ -119,6 +119,7 @@
 
       var active_tool = "dot";
       var tmp_wire = null;
+      var grid_size = 50;
 
       function init_ohm() {
         document.onkeydown = key_down;
@@ -145,17 +146,17 @@
       // Grid functions:
 
       function round_to_grid(pos) {
-        return Math.round(pos / 50) * 50;
+        return Math.round(pos / grid_size) * grid_size;
       }
 
       function init_grid() {
         var drawing = document.getElementById("drawing");
         var svg_width = Number(drawing.getAttribute("width"));
         var svg_height = Number(drawing.getAttribute("height"));
-        for (var x = 50; x < svg_width; x += 50) {
+        for (var x = grid_size; x < svg_width; x += grid_size) {
           create_grid_line(x, 0, x, svg_width);
         }
-        for (var y = 50; y < svg_height; y += 50) {
+        for (var y = grid_size; y < svg_height; y += grid_size) {
           create_grid_line(0, y, svg_height, y);
         }
       }
@@ -189,17 +190,32 @@
         var svg_width = Number(drawing.getAttribute("width"));
         var svg_height = Number(drawing.getAttribute("height"));
         if (operation === "+") {
-          svg_width += 50;
-          svg_height += 50;
+          svg_width += grid_size;
+          svg_height += grid_size;
         } else if (operation === "-") {
-          svg_width -= 50;
-          svg_height -= 50;
+          svg_width -= grid_size;
+          svg_height -= grid_size;
         } else {
           console.log("Error: bad resize - " + operation);
         }
         drawing.setAttribute("width", "" + svg_width);
         drawing.setAttribute("height", "" + svg_height);
 
+        refresh_grid_lines();
+      }
+
+      function subdivide_grid(operation) {
+        var drawing = document.getElementById("drawing");
+        if (operation === "1") {
+          grid_size = 50;
+        } else if (operation === "2") {
+          grid_size = 50 / 2;
+        } else if (operation === "3") {
+          grid_size = 50 / 3;
+        } else if (operation === "4") {
+          grid_size = 50 / 4;
+        }
+        console.log(operation);
         refresh_grid_lines();
       }
 
@@ -233,6 +249,8 @@
         var key = event.key;
         if (key === "+" || key === "-") {
           resize(key);
+        } else if (key === "1" || key === "2" || key === "3" || key === "4") {
+          subdivide_grid(key);
         }
       }
 
