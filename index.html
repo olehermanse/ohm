@@ -12,10 +12,27 @@
         font-family: "Varela Round", Helvetica, Arial, Sans-Serif;
       }
 
+      body {
+        background-color: #f2f2f2;
+        display: flex;
+        min-height: 100vh;
+      }
+
+      h1 {
+        font-size: 1.5em;
+      }
+
+      /* Link inside h1 (ohm logo/title) */
+      h1>a {
+        /* Make link have no special style, normal color and no underline: */
+        color: inherit;
+        text-decoration: none;
+      }
+
       .sidebar {
         height: 100vh;
         min-height: 600px;
-        width: 90px;
+        min-width: 90px;
         background-color: #ececec;
         color: #4a4a4a;
         display: flex;
@@ -45,41 +62,49 @@
 
       .tool {
         flex: 1 1 auto;
-        width: 36;
+        min-width: 36;
         height: 36;
         display: flex;
         justify-content: center;
         align-items: center;
       }
 
+      .tool>div {
+        padding: 1em;
+      }
+
       .active_tool {
         color: blue;
       }
 
-      .tool_svg {
-        width: 28;
+      /* The tool svg icons, or text divs when offline: */
+      .tool_icon {
+        min-width: 28;
         height: 28;
+        text-align: center;
       }
 
-      .tool_svg:hover {
-        width: 36;
-        height: 36;
+      .tool_icon:hover {
         cursor: pointer;
+      }
+
+      /* Only if feather replaced tools with svg: */
+      svg.tool_icon:hover {
+        /* Tool icons grow bigger on hover: */
+        min-width: 36;
+        height: 36;
+      }
+
+      /* Tools are div when offline: */
+      div.tool_icon:hover {
+        /* The size of the sidebar is based on the biggest element,
+            thus, use italic for feedback since it doesn't change width: */
+        font-style: italic;
       }
 
       .delete {
         fill: red;
         stroke: red;
-      }
-
-      body {
-        background-color: #f2f2f2;
-        display: flex;
-        min-height: 100vh;
-      }
-
-      h1 {
-        font-size: 1.5em;
       }
 
       #drawing {
@@ -90,29 +115,37 @@
       }
     </style>
     <script>
-      var ohm_state = "circle";
+      // Global state:
+
+      var active_tool = "dot";
       var tmp_wire = null;
 
       function init_ohm() {
         document.onkeydown = key_down;
 
         var p = document.getElementById("drawing");
-        p.onmousedown = draw_mouse_down;
-        p.onmousemove = draw_mouse_move;
+        p.onmousedown = drawing_mouse_down;
+        p.onmousemove = drawing_mouse_move;
         init_grid();
-        set_state(ohm_state);
+        activate_tool(active_tool);
       }
 
-      function create_grid_line(x1, y1, x2, y2) {
-        var drawing = document.getElementById("drawing");
-        var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", "" + x1);
-        line.setAttribute("y1", "" + y1);
-        line.setAttribute("x2", "" + x2);
-        line.setAttribute("y2", "" + y2);
-        line.setAttribute("id", "grid_line");
-        line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
-        drawing.appendChild(line);
+      function activate_tool(new_state) {
+        active_tool = new_state;
+        var toolbox = document.getElementById("toolbox");
+        for (let tool of toolbox.children) {
+          if (tool.id === active_tool) {
+            tool.classList.add("active_tool");
+          } else {
+            tool.classList.remove("active_tool");
+          }
+        }
+      }
+
+      // Grid functions:
+
+      function round_to_grid(pos) {
+        return Math.round(pos / 50) * 50;
       }
 
       function init_grid() {
@@ -127,22 +160,128 @@
         }
       }
 
-      function set_state(new_state) {
-        ohm_state = new_state;
-        var toolbox = document.getElementById("toolbox");
-        for (let tool of toolbox.children) {
-          if (tool.id === ohm_state) {
-            tool.classList.add("active_tool");
-          } else {
-            tool.classList.remove("active_tool");
-          }
+      function create_grid_line(x1, y1, x2, y2) {
+        var drawing = document.getElementById("drawing");
+        var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", "" + x1);
+        line.setAttribute("y1", "" + y1);
+        line.setAttribute("x2", "" + x2);
+        line.setAttribute("y2", "" + y2);
+        line.setAttribute("id", "grid_line");
+        line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
+        drawing.appendChild(line);
+      }
+
+      function remove_grid_lines(drawing) {
+        while (drawing.getElementById("grid_line")) {
+          drawing.getElementById("grid_line").remove();
         }
       }
 
-      function round_to_grid(pos) {
-        return Math.round(pos / 50) * 50;
+      function refresh_grid_lines() {
+        var drawing = document.getElementById("drawing");
+        remove_grid_lines(drawing);
+        init_grid();
       }
 
+      function resize(operation) {
+        var drawing = document.getElementById("drawing");
+        var svg_width = Number(drawing.getAttribute("width"));
+        var svg_height = Number(drawing.getAttribute("height"));
+        if (operation === "+") {
+          svg_width += 50;
+          svg_height += 50;
+        } else if (operation === "-") {
+          svg_width -= 50;
+          svg_height -= 50;
+        } else {
+          console.log("Error: bad resize - " + operation);
+        }
+        drawing.setAttribute("width", "" + svg_width);
+        drawing.setAttribute("height", "" + svg_height);
+
+        refresh_grid_lines();
+      }
+
+      // Mouse events:
+
+      function drawing_mouse_down(event) {
+        x = "" + round_to_grid(event.offsetX);
+        y = "" + round_to_grid(event.offsetY);
+        if (active_tool === "dot") {
+          place_dot(x, y);
+        } else if (active_tool === "wire") {
+          drawing_wire_click(x, y);
+        } else if (active_tool === "delete") {
+          drawing_delete_click(x, y);
+        }
+      }
+
+      function drawing_mouse_move(event) {
+        x = "" + round_to_grid(event.offsetX);
+        y = "" + round_to_grid(event.offsetY);
+        if (active_tool === "wire") {
+          drawing_wire_hover(x, y);
+        } else if (active_tool === "delete") {
+          drawing_delete_hover(x, y);
+        }
+      }
+
+      // Keyboard events:
+
+      function key_down(event) {
+        var key = event.key;
+        if (key === "+" || key === "-") {
+          resize(key);
+        }
+      }
+
+      // Toolbar click functions:
+
+      function wire_click() {
+        activate_tool("wire");
+      }
+
+      function dot_click() {
+        activate_tool("dot");
+      }
+
+      function component_click() {
+        activate_tool("component");
+      }
+
+      function text_click() {
+        activate_tool("text");
+      }
+
+      function rectangle_click() {
+        activate_tool("rectangle");
+      }
+
+      function delete_click() {
+        activate_tool("delete");
+      }
+
+      function copy_click() {
+        activate_tool("copy");
+      }
+
+      function save_click() {
+        var copy = document.getElementById("drawing").cloneNode(true);
+        remove_grid_lines(copy);
+        var svg_text = copy.outerHTML;
+        download("schematic.svg", svg_text);
+      }
+
+      function load_click() {
+        alert("Load is not implemented (yet)!");
+      }
+
+      function share_click() {
+        alert("Share is not implemented (yet)!");
+      }
+
+      // Save functionality:
       // From: https://gist.github.com/liabru/11263260#gistcomment-2894088
       function download(filename, text) {
         var element = document.createElement("a");
@@ -157,54 +296,7 @@
         document.body.removeChild(element);
       }
 
-      function remove_grid_lines(drawing) {
-        while (drawing.getElementById("grid_line")) {
-          drawing.getElementById("grid_line").remove();
-        }
-      }
-
-      function save_tool() {
-        var copy = document.getElementById("drawing").cloneNode(true);
-        remove_grid_lines(copy);
-        var svg_text = copy.outerHTML;
-        download("schematic.svg", svg_text);
-      }
-
-      function load_tool() {
-        alert("Load is not implemented (yet)!");
-      }
-
-      function share_tool() {
-        alert("Share is not implemented (yet)!");
-      }
-
-      function wire_tool() {
-        set_state("wire");
-      }
-
-      function dot_tool() {
-        set_state("circle");
-      }
-
-      function component_tool() {
-        set_state("component");
-      }
-
-      function text_tool() {
-        set_state("text");
-      }
-
-      function rectangle_tool() {
-        set_state("rectangle");
-      }
-
-      function delete_tool() {
-        set_state("delete");
-      }
-
-      function copy_tool() {
-        set_state("copy");
-      }
+      // Dot functionality:
 
       function find_dot(x, y) {
         var drawing = document.getElementById("drawing");
@@ -234,25 +326,95 @@
         drawing.appendChild(dot);
       }
 
-      function place_wire(wire, id) {
-        start_x = "" + round_to_grid(wire.start_x);
-        start_y = "" + round_to_grid(wire.start_y);
-        end_x = "" + round_to_grid(wire.end_x);
-        end_y = "" + round_to_grid(wire.end_y);
+      // Delete functionality:
 
-        var drawing = document.getElementById("drawing");
-        var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", start_x);
-        line.setAttribute("y1", start_y);
-        line.setAttribute("x2", end_x);
-        line.setAttribute("y2", end_y);
-        line.setAttribute("id", id);
-        line.setAttribute("stroke", "black");
-        if (id === "tmp_wire") {
-          line.setAttribute("stroke", "blue");
+      function get_points(polyline) {
+        var points = polyline.getAttribute("points").split(" ");
+        var results = [];
+        for (let point of points) {
+          var coordinates = point.split(",");
+          var x = coordinates[0];
+          var y = coordinates[1];
+          results.push({
+            "x": x,
+            "y": y
+          });
         }
-        line.setAttribute("stroke-width", "10");
-        drawing.appendChild(line);
+        return results;
+      }
+
+      function find_wires(x, y) {
+        var matches = [];
+        var drawing = document.getElementById("drawing");
+
+        for (let element of drawing.children) {
+          if (element.tagName === "polyline") {
+            var points = get_points(element);
+            for (let point of points) {
+              if (x === point.x && y === point.y) {
+                matches.push(element);
+                break; // Break out of points loop, continue to next element
+              }
+            }
+          }
+        }
+        return matches;
+      }
+
+      function elements_to_delete(x, y) {
+        var will_be_deleted = [];
+
+        var dot = find_dot(x, y);
+        if (dot) {
+          will_be_deleted.push(dot);
+        }
+
+        var wires = find_wires(x, y);
+        for (let wire of wires) {
+          will_be_deleted.push(wire);
+        }
+
+        return will_be_deleted;
+      }
+
+      function drawing_delete_click(x, y) {
+        var elements = elements_to_delete(x, y);
+
+        for (let element of elements) {
+          element.remove();
+        }
+      }
+
+      function drawing_delete_hover(x, y) {
+        var to_delete = elements_to_delete(x, y);
+        var drawing = document.getElementById("drawing");
+
+        for (let element of drawing.children) {
+          if (to_delete.includes(element)) {
+            element.classList.add("delete");
+          } else {
+            element.classList.remove("delete");
+          }
+        }
+      }
+
+      // Wire tool:
+
+      function drawing_wire_click(x, y) {
+        if (tmp_wire === null) {
+          wire_start(x, y);
+        } else {
+          wire_end();
+        }
+      }
+
+      function drawing_wire_hover(x, y) {
+        if (tmp_wire === null) {
+          return;
+        }
+        tmp_wire.end_x = x;
+        tmp_wire.end_y = y;
+        update_wire_svg();
       }
 
       function update_wire_svg() {
@@ -263,8 +425,7 @@
           if (!element) {
             return;
           }
-          element.setAttribute("x2", tmp_wire.end_x);
-          element.setAttribute("y2", tmp_wire.end_y);
+          element.setAttribute("points", create_points_str(tmp_wire));
         }
       }
 
@@ -280,47 +441,6 @@
         update_wire_svg();
       }
 
-      function wire_move(x, y) {
-        if (tmp_wire === null) {
-          return;
-        }
-        tmp_wire.end_x = x;
-        tmp_wire.end_y = y;
-        update_wire_svg();
-      }
-
-      function elements_to_delete(x, y) {
-        var will_be_deleted = [];
-        var dot = find_dot(x, y);
-        var drawing = document.getElementById("drawing");
-
-        if (dot) {
-          will_be_deleted.push(dot);
-        }
-        return will_be_deleted;
-      }
-
-      function delete_click(x, y) {
-        var elements = elements_to_delete(x, y);
-
-        for (let element of elements) {
-          element.remove();
-        }
-      }
-
-      function delete_move(x, y) {
-        var to_delete = elements_to_delete(x, y);
-        var drawing = document.getElementById("drawing");
-
-        for (let element of drawing.children) {
-          if (to_delete.includes(element)) {
-            element.classList.add("delete");
-          } else {
-            element.classList.remove("delete");
-          }
-        }
-      }
-
       function wire_end() {
         let element = document.getElementById("tmp_wire");
         element.setAttribute("id", "wire");
@@ -329,90 +449,83 @@
         update_wire_svg();
       }
 
-      function wire_click(x, y) {
-        if (tmp_wire === null) {
-          wire_start(x, y);
-        } else {
-          wire_end();
-        }
+      function create_points_str(wire) {
+        var x1 = "" + round_to_grid(wire.start_x);
+        var y1 = "" + round_to_grid(wire.start_y);
+        var x2 = "" + round_to_grid(wire.end_x);
+        var y2 = "" + round_to_grid(wire.end_y);
+        var points = "" + x1 + "," + y1 + " " + x2 + "," + y2;
+        return points;
       }
 
-      function draw_mouse_down(event) {
-        x = "" + round_to_grid(event.offsetX);
-        y = "" + round_to_grid(event.offsetY);
-        if (ohm_state === "circle") {
-          place_dot(x, y);
-        } else if (ohm_state === "wire") {
-          wire_click(x, y);
-        } else if (ohm_state === "delete") {
-          delete_click(x, y);
-        }
-      }
-
-      function draw_mouse_move(event) {
-        x = "" + round_to_grid(event.offsetX);
-        y = "" + round_to_grid(event.offsetY);
-        if (ohm_state === "wire") {
-          wire_move(x, y);
-        } else if (ohm_state === "delete") {
-          delete_move(x, y);
-        }
-      }
-
-      function refresh_grid_lines() {
+      function place_wire(wire, id) {
         var drawing = document.getElementById("drawing");
-        remove_grid_lines(drawing);
-        init_grid();
-      }
-
-      function resize(operation) {
-        var drawing = document.getElementById("drawing");
-        var svg_width = Number(drawing.getAttribute("width"));
-        var svg_height = Number(drawing.getAttribute("height"));
-        if (operation === "+") {
-          svg_width += 50;
-          svg_height += 50;
-        } else if (operation === "-") {
-          svg_width -= 50;
-          svg_height -= 50;
-        } else {
-          console.log("Error: bad resize - " + operation);
+        var line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        line.setAttribute("points", create_points_str(wire));
+        line.setAttribute("id", id);
+        line.setAttribute("stroke-width", "10");
+        line.setAttribute("fill", "none");
+        line.setAttribute("stroke", "black");
+        if (id === "tmp_wire") {
+          line.setAttribute("stroke", "blue");
         }
-        drawing.setAttribute("width", "" + svg_width);
-        drawing.setAttribute("height", "" + svg_height);
-
-        refresh_grid_lines();
-      }
-
-      function key_down(event) {
-        var key = event.key;
-        if (key === "+" || key === "-") {
-          resize(key);
-        }
+        drawing.appendChild(line);
       }
     </script>
   </head>
   <body onload="init_ohm();">
     <div class="sidebar">
       <div class="sidebar_content">
-        <h1 class="toolheader">ohm</h1>
+        <h1 class="toolheader"><a href="https://ohm.oleherman.com/">ohm</a></h1>
         <div id="toolbox" class="toolbox">
-          <div title="Add wire" class="tool" id="wire" onclick="wire_tool();"><svg class="tool_svg" data-feather="edit-2"></svg></div>
-          <div title="Add dot" class="tool" id="dot" onclick="dot_tool();"><svg class="tool_svg" data-feather="circle"></svg></div>
-          <div title="Add component" class="tool" id="component" onclick="component_tool();"><svg class="tool_svg" data-feather="cpu"></svg></div>
-          <div title="Add text" class="tool" id="text" onclick="text_tool();"><svg class="tool_svg" data-feather="type"></svg></div>
-          <div title="Add rectangle" class="tool" id="rectangle" onclick="rectangle_tool();"><svg class="tool_svg" data-feather="square"></svg></div>
-          <div title="Copy" class="tool" id="copy" onclick="copy_tool();"><svg class="tool_svg" data-feather="copy"></svg></div>
-          <div title="Delete object" class="tool" id="delete" onclick="delete_tool();"><svg class="tool_svg" data-feather="x"></svg></div>
-          <div title="Save" class="tool" id="save" onclick="save_tool();"><svg class="tool_svg" data-feather="save"></svg></div>
-          <div title="Load" class="tool" id="load" onclick="load_tool();"><svg class="tool_svg" data-feather="upload"></svg></div>
-          <div title="Share" class="tool" id="share" onclick="share_tool();"><svg class="tool_svg" data-feather="external-link"></svg></div>
+          <div title="Add wire" class="tool" id="wire" onclick="wire_click();">
+            <div class="tool_icon" data-feather="edit-2">Wire</div>
+          </div>
+          <div title="Add dot" class="tool" id="dot" onclick="dot_click();">
+            <div class="tool_icon" data-feather="circle">Dot</div>
+          </div>
+          <div title="Add component" class="tool" id="component" onclick="component_click();">
+            <div class="tool_icon" data-feather="cpu">Component</div>
+          </div>
+          <div title="Add text" class="tool" id="text" onclick="text_click();">
+            <div class="tool_icon" data-feather="type">Text</div>
+          </div>
+          <div title="Add rectangle" class="tool" id="rectangle" onclick="rectangle_click();">
+            <div class="tool_icon" data-feather="square">Rectangle</div>
+          </div>
+          <div title="Copy" class="tool" id="copy" onclick="copy_click();">
+            <div class="tool_icon" data-feather="copy">Copy</div>
+          </div>
+          <div title="Delete object" class="tool" id="delete" onclick="delete_click();">
+            <div class="tool_icon" data-feather="x">Delete</div>
+          </div>
+          <div title="Save" class="tool" id="save" onclick="save_click();">
+            <div class="tool_icon" data-feather="save">Save</div>
+          </div>
+          <div title="Load" class="tool" id="load" onclick="load_click();">
+            <div class="tool_icon" data-feather="upload">Load</div>
+          </div>
+          <div title="Share" class="tool" id="share" onclick="share_click();">
+            <div class="tool_icon" data-feather="external-link">Share</div>
+          </div>
         </div>
       </div>
     </div>
-    <svg id="drawing" width="600" height="600" version="1.1" xmlns="http://www.w3.org/2000/svg"></svg>
+    <svg id="drawing" width="600" height="600" xmlns="http://www.w3.org/2000/svg"></svg>
   </body>
   <script>
     feather.replace();
+
+    function replace_dot() {
+      var wrapper = document.getElementById("dot");
+      for (let element of wrapper.children) {
+        if (element.tagName === "svg") {
+          element.setAttribute("fill", "currentColor");
+          element.setAttribute("stroke", "none");
+        }
+      }
+    }
+
+    replace_dot();
   </script>
 </html>
