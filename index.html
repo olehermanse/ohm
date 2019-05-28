@@ -23,7 +23,7 @@
       }
 
       /* Link inside h1 (ohm logo/title) */
-      h1>a {
+      h1 > a {
         /* Make link have no special style, normal color and no underline: */
         color: inherit;
         text-decoration: none;
@@ -69,7 +69,7 @@
         align-items: center;
       }
 
-      .tool>div {
+      .tool > div {
         padding: 1em;
       }
 
@@ -119,6 +119,7 @@
 
       var active_tool = "dot";
       var tmp_wire = null;
+      var grid_size = 50;
 
       function init_ohm() {
         document.onkeydown = key_down;
@@ -145,17 +146,17 @@
       // Grid functions:
 
       function round_to_grid(pos) {
-        return Math.round(pos / 50) * 50;
+        return Math.round(pos / grid_size) * grid_size;
       }
 
       function init_grid() {
         var drawing = document.getElementById("drawing");
         var svg_width = Number(drawing.getAttribute("width"));
         var svg_height = Number(drawing.getAttribute("height"));
-        for (var x = 50; x < svg_width; x += 50) {
+        for (var x = grid_size; x < svg_width; x += grid_size) {
           create_grid_line(x, 0, x, svg_width);
         }
-        for (var y = 50; y < svg_height; y += 50) {
+        for (var y = grid_size; y < svg_height; y += grid_size) {
           create_grid_line(0, y, svg_height, y);
         }
       }
@@ -189,17 +190,32 @@
         var svg_width = Number(drawing.getAttribute("width"));
         var svg_height = Number(drawing.getAttribute("height"));
         if (operation === "+") {
-          svg_width += 50;
-          svg_height += 50;
+          svg_width += grid_size;
+          svg_height += grid_size;
         } else if (operation === "-") {
-          svg_width -= 50;
-          svg_height -= 50;
+          svg_width -= grid_size;
+          svg_height -= grid_size;
         } else {
           console.log("Error: bad resize - " + operation);
         }
         drawing.setAttribute("width", "" + svg_width);
         drawing.setAttribute("height", "" + svg_height);
 
+        refresh_grid_lines();
+      }
+
+      function subdivide_grid(operation) {
+        var drawing = document.getElementById("drawing");
+        if (operation === "1") {
+          grid_size = 50;
+        } else if (operation === "2") {
+          grid_size = 50 / 2;
+        } else if (operation === "3") {
+          grid_size = 50 / 3;
+        } else if (operation === "4") {
+          grid_size = 50 / 4;
+        }
+        console.log(operation);
         refresh_grid_lines();
       }
 
@@ -233,6 +249,8 @@
         var key = event.key;
         if (key === "+" || key === "-") {
           resize(key);
+        } else if (key === "1" || key === "2" || key === "3" || key === "4") {
+          subdivide_grid(key);
         }
       }
 
@@ -244,6 +262,10 @@
 
       function dot_click() {
         activate_tool("dot");
+      }
+
+      function circle_click() {
+        activate_tool("circle");
       }
 
       function component_click() {
@@ -336,8 +358,8 @@
           var x = coordinates[0];
           var y = coordinates[1];
           results.push({
-            "x": x,
-            "y": y
+            x: x,
+            y: y
           });
         }
         return results;
@@ -483,6 +505,9 @@
           </div>
           <div title="Add dot" class="tool" id="dot" onclick="dot_click();">
             <div class="tool_icon" data-feather="circle">Dot</div>
+          </div>
+          <div title="Add circle" class="tool" id="circle" onclick="circle_click();">
+            <div class="tool_icon" data-feather="circle">Circle</div>
           </div>
           <div title="Add component" class="tool" id="component" onclick="component_click();">
             <div class="tool_icon" data-feather="cpu">Component</div>
