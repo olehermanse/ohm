@@ -515,5 +515,17 @@
   </body>
   <script>
     feather.replace();
+
+    function replace_dot() {
+      var wrapper = document.getElementById("dot");
+      for (let element of wrapper.children) {
+        if (element.tagName === "svg") {
+          element.setAttribute("fill", "currentColor");
+          element.setAttribute("stroke", "none");
+        }
+      }
+    }
+
+    replace_dot();
   </script>
 </html>
