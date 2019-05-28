@@ -188,7 +188,7 @@
         line.setAttribute("y2", "" + y2);
         line.setAttribute("id", "grid_line");
         line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
-        drawing.appendChild(line);
+        drawing.prepend(line);
       }
 
       function remove_grid_lines(drawing) {
