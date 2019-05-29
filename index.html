@@ -102,9 +102,28 @@
         font-style: italic;
       }
 
+      /* SVG styling:
+
+         Should only be done in CSS for temporary styling while editing,
+         so, coloring red for delete and blue for temp is okay,
+         but setting stroke-width etc. should be done on the SVG nodes from
+         javascript, and not in CSS. This is to ensure that the SVG looks
+         identical once you hit save.
+      */
       .delete {
-        fill: red;
         stroke: red;
+      }
+
+      circle.delete {
+        fill: red;
+      }
+
+      .tmp {
+        stroke: blue;
+      }
+
+      circle.tmp {
+        fill: blue;
       }
 
       #drawing {
@@ -116,9 +135,7 @@
     </style>
     <script>
       // Global state:
-
       var active_tool = "dot";
-      var tmp_wire = null;
       var grid_size = 50;
 
       function init_ohm() {
@@ -132,6 +149,7 @@
       }
 
       function activate_tool(new_state) {
+        clear_temporary_elements();
         active_tool = new_state;
         var toolbox = document.getElementById("toolbox");
         for (let tool of toolbox.children) {
@@ -170,7 +188,7 @@
         line.setAttribute("y2", "" + y2);
         line.setAttribute("id", "grid_line");
         line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
-        drawing.appendChild(line);
+        drawing.prepend(line);
       }
 
       function remove_grid_lines(drawing) {
@@ -219,13 +237,38 @@
         refresh_grid_lines();
       }
 
+      function get_temporary_elements() {
+        var drawing = document.getElementById("drawing");
+        return drawing.getElementsByClassName("tmp");
+      }
+
+      function clear_temporary_elements() {
+        var temps = get_temporary_elements();
+        for (let element of temps) {
+          element.remove();
+        }
+      }
+
+      function add_temporary_element(element) {
+        element.classList.add("tmp");
+        var drawing = document.getElementById("drawing");
+        drawing.appendChild(element);
+      }
+
+      function place_temporary_elements() {
+        var temps = get_temporary_elements();
+        for (let element of temps) {
+          element.classList.remove("tmp");
+        }
+      }
+
       // Mouse events:
 
       function drawing_mouse_down(event) {
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
         if (active_tool === "dot") {
-          place_dot(x, y);
+          place_temporary_elements();
         } else if (active_tool === "wire") {
           drawing_wire_click(x, y);
         } else if (active_tool === "delete") {
@@ -240,6 +283,8 @@
           drawing_wire_hover(x, y);
         } else if (active_tool === "delete") {
           drawing_delete_hover(x, y);
+        } else if (active_tool === "dot") {
+          drawing_dot_hover(x, y);
         }
       }
 
@@ -335,17 +380,27 @@
         return find_dot(x, y) != null;
       }
 
-      function place_dot(x, y) {
-        if (dot_exists(x, y)) {
-          return;
-        }
+      function create_temporary_dot(x, y) {
         var drawing = document.getElementById("drawing");
         var dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         dot.setAttribute("cx", x);
         dot.setAttribute("cy", y);
         dot.setAttribute("r", "10");
-        dot.setAttribute("fill", "black");
-        drawing.appendChild(dot);
+        add_temporary_element(dot);
+      }
+
+      function update_temporary_dot(x, y) {
+        var dot = get_temporary_elements()[0]; // Assume there is 1 tmp dot
+        dot.setAttribute("cx", x);
+        dot.setAttribute("cy", y);
+      }
+
+      function drawing_dot_hover(x, y) {
+        if (get_temporary_elements().length == 0) {
+          create_temporary_dot(x, y);
+        } else {
+          update_temporary_dot(x, y);
+        }
       }
 
       // Delete functionality:
@@ -370,7 +425,7 @@
         var drawing = document.getElementById("drawing");
 
         for (let element of drawing.children) {
-          if (element.tagName === "polyline") {
+          if (element.tagName === "polyline" || element.tagName === "polygon") {
             var points = get_points(element);
             for (let point of points) {
               if (x === point.x && y === point.y) {
@@ -423,75 +478,94 @@
       // Wire tool:
 
       function drawing_wire_click(x, y) {
-        if (tmp_wire === null) {
+        if (get_temporary_elements().length === 0) {
           wire_start(x, y);
         } else {
-          wire_end();
+          var wire = get_temporary_elements()[0]; // Assume there is only 1 temporary wire
+          var points = get_points(wire);
+
+          // Get the first point and last point we clicked:
+          var first = points[0];
+          var last = points[points.length - 2]; // - 2 because - 1 is the hovering point
+
+          // End the wire if you connected with the first, or clicked the same point twice:
+          if (first.x === x && first.y === y || last.x === x && last.y === y) {
+            wire_end();
+          } else {
+            wire_continue(x, y);
+          }
         }
       }
 
       function drawing_wire_hover(x, y) {
-        if (tmp_wire === null) {
+        if (get_temporary_elements().length === 0) {
           return;
         }
-        tmp_wire.end_x = x;
-        tmp_wire.end_y = y;
-        update_wire_svg();
-      }
-
-      function update_wire_svg() {
-        if (tmp_wire === null) {
-          // Nothing to update
-        } else {
-          let element = document.getElementById("tmp_wire");
-          if (!element) {
-            return;
+        var wire = get_temporary_elements()[0];
+        var points = get_points(wire);
+        points[points.length - 1] = {
+          "x": x,
+          "y": y
+        };
+        wire.setAttribute("points", create_points_str(points));
+        var replace_tag = null;
+        if (points[0].x === x && points[0].y === y) {
+          if (wire.tagName === "polyline") {
+            replace_tag = "polygon";
           }
-          element.setAttribute("points", create_points_str(tmp_wire));
+        } else {
+          if (wire.tagName === "polygon") {
+            replace_tag = "polyline";
+          }
+        }
+        if (replace_tag) {
+          var new_wire = create_wire(points, "", replace_tag);
+          add_temporary_element(new_wire);
+          wire.remove();
         }
       }
 
       function wire_start(x, y) {
-        tmp_wire = {
-          start_x: x,
-          start_y: y,
-          end_x: x,
-          end_y: y
+        var point = {
+          "x": x,
+          "y": y
         };
+        var points = [point, point];
+        var polyline = create_wire(points, "", "polyline");
+        add_temporary_element(polyline);
+      }
 
-        place_wire(tmp_wire, "tmp_wire");
-        update_wire_svg();
+      function wire_continue(x, y) {
+        var point = {
+          "x": x,
+          "y": y
+        };
+        var wire = get_temporary_elements()[0];
+        var points = get_points(wire);
+        points.push(point);
+        wire.setAttribute("points", create_points_str(points));
       }
 
       function wire_end() {
-        let element = document.getElementById("tmp_wire");
-        element.setAttribute("id", "wire");
-        element.setAttribute("stroke", "black");
-        tmp_wire = null;
-        update_wire_svg();
+        place_temporary_elements();
       }
 
-      function create_points_str(wire) {
-        var x1 = "" + round_to_grid(wire.start_x);
-        var y1 = "" + round_to_grid(wire.start_y);
-        var x2 = "" + round_to_grid(wire.end_x);
-        var y2 = "" + round_to_grid(wire.end_y);
-        var points = "" + x1 + "," + y1 + " " + x2 + "," + y2;
-        return points;
+      function create_points_str(points) {
+        var string = "";
+        for (let point of points) {
+          string += "" + point.x + "," + point.y + " ";
+        }
+        return string.trim();
       }
 
-      function place_wire(wire, id) {
-        var drawing = document.getElementById("drawing");
-        var line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-        line.setAttribute("points", create_points_str(wire));
+      function create_wire(points, id, tag) {
+        var line = document.createElementNS("http://www.w3.org/2000/svg", tag);
+        line.setAttribute("points", create_points_str(points));
         line.setAttribute("id", id);
         line.setAttribute("stroke-width", "10");
         line.setAttribute("fill", "none");
         line.setAttribute("stroke", "black");
-        if (id === "tmp_wire") {
-          line.setAttribute("stroke", "blue");
-        }
-        drawing.appendChild(line);
+        return line;
       }
     </script>
   </head>
