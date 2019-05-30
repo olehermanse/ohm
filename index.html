@@ -188,6 +188,7 @@
         line.setAttribute("y2", "" + y2);
         line.setAttribute("id", "grid_line");
         line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
+
         drawing.prepend(line);
       }
 
@@ -321,10 +322,6 @@
 
       function text_click() {
         activate_tool("text");
-      }
-
-      function rectangle_click() {
-        activate_tool("rectangle");
       }
 
       function delete_click() {
@@ -590,9 +587,6 @@
           </div>
           <div title="Add text" class="tool" id="text" onclick="text_click();">
             <div class="tool_icon" data-feather="type">Text</div>
-          </div>
-          <div title="Add rectangle" class="tool" id="rectangle" onclick="rectangle_click();">
-            <div class="tool_icon" data-feather="square">Rectangle</div>
           </div>
           <div title="Copy" class="tool" id="copy" onclick="copy_click();">
             <div class="tool_icon" data-feather="copy">Copy</div>
