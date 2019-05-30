@@ -310,7 +310,7 @@
         } else if (active_tool === "wire") {
           drawing_wire_click(x, y);
         } else if (active_tool === "delete") {
-          drawing_delete_click(x, y);
+          drawing_delete_click(event);
         }
       }
 
@@ -320,7 +320,7 @@
         if (active_tool === "wire") {
           drawing_wire_hover(x, y);
         } else if (active_tool === "delete") {
-          drawing_delete_hover(x, y);
+          drawing_delete_hover(event);
         } else if (active_tool === "dot") {
           drawing_dot_hover(x, y);
         } else if (active_tool === "circle") {
@@ -516,32 +516,32 @@
         return matches;
       }
 
-      function elements_to_delete(x, y) {
+      function elements_to_delete(event) {
         var will_be_deleted = [];
-
-        var circle = find_circle(x, y);
-        if (circle) {
-          will_be_deleted.push(circle);
-        }
-
-        var wires = find_wires(x, y);
-        for (let wire of wires) {
-          will_be_deleted.push(wire);
+        var element = event.path[0];
+        if (element) {
+          if (
+            element.tagName === "circle" ||
+            element.tagName === "polyline" ||
+            element.tagName === "polygon"
+          ) {
+            will_be_deleted.push(element);
+          }
         }
 
         return will_be_deleted;
       }
 
-      function drawing_delete_click(x, y) {
-        var elements = elements_to_delete(x, y);
+      function drawing_delete_click(event) {
+        var elements = elements_to_delete(event);
 
         for (let element of elements) {
           element.remove();
         }
       }
 
-      function drawing_delete_hover(x, y) {
-        var to_delete = elements_to_delete(x, y);
+      function drawing_delete_hover(event) {
+        var to_delete = elements_to_delete(event);
         var drawing = document.getElementById("drawing");
 
         for (let element of drawing.children) {
