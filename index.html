@@ -133,9 +133,14 @@
         margin: 1em;
       }
 
-      #grid_line {
+      #grid_line_major {
         stroke: rgb(200, 200, 200);
         stroke-width: 0.4;
+      }
+
+      #grid_line_minor {
+        stroke: rgb(200, 200, 200);
+        stroke-width: 0.2;
       }
     </style>
     <script>
@@ -172,33 +177,43 @@
         return Math.round(pos / grid_size) * grid_size;
       }
 
+      function get_grid_flavor(xy) {
+        if (Math.round(xy) % 50 === 0) {
+          return "major";
+        }
+        return "minor";
+      }
+
       function init_grid() {
         var drawing = document.getElementById("drawing");
         var svg_width = Number(drawing.getAttribute("width"));
         var svg_height = Number(drawing.getAttribute("height"));
         for (var x = grid_size; x < svg_width; x += grid_size) {
-          create_grid_line(x, 0, x, svg_width);
+          create_grid_line(x, 0, x, svg_width, get_grid_flavor(x));
         }
         for (var y = grid_size; y < svg_height; y += grid_size) {
-          create_grid_line(0, y, svg_height, y);
+          create_grid_line(0, y, svg_height, y, get_grid_flavor(y));
         }
       }
 
-      function create_grid_line(x1, y1, x2, y2) {
+      function create_grid_line(x1, y1, x2, y2, flavor) {
         var drawing = document.getElementById("drawing");
         var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
         line.setAttribute("x1", "" + x1);
         line.setAttribute("y1", "" + y1);
         line.setAttribute("x2", "" + x2);
         line.setAttribute("y2", "" + y2);
-        line.setAttribute("id", "grid_line");
+        line.setAttribute("id", "grid_line_" + flavor);
 
         drawing.prepend(line);
       }
 
       function remove_grid_lines(drawing) {
-        while (drawing.getElementById("grid_line")) {
-          drawing.getElementById("grid_line").remove();
+        while (drawing.getElementById("grid_line_major")) {
+          drawing.getElementById("grid_line_major").remove();
+        }
+        while (drawing.getElementById("grid_line_minor")) {
+          drawing.getElementById("grid_line_minor").remove();
         }
       }
 
