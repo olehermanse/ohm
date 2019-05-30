@@ -225,16 +225,7 @@
 
       function subdivide_grid(operation) {
         var drawing = document.getElementById("drawing");
-        if (operation === "1") {
-          grid_size = 50;
-        } else if (operation === "2") {
-          grid_size = 50 / 2;
-        } else if (operation === "3") {
-          grid_size = 50 / 3;
-        } else if (operation === "4") {
-          grid_size = 50 / 4;
-        }
-        console.log(operation);
+        grid_size = 50 / operation;
         refresh_grid_lines();
       }
 
