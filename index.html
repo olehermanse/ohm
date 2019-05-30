@@ -114,7 +114,7 @@
         stroke: red;
       }
 
-      circle.delete {
+      circle#ohm_dot.delete {
         fill: red;
       }
 
@@ -122,7 +122,7 @@
         stroke: blue;
       }
 
-      circle.tmp {
+      circle#ohm_dot.tmp {
         fill: blue;
       }
 
@@ -260,8 +260,11 @@
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
         if (active_tool === "dot" || active_tool === "circle") {
-          remove_circle(x, y); // Remove dot or circle if it exists
+          remove_circle(x, y); // (If it exists)
           place_temporary_elements();
+
+          // Create temporary element immediately, don't wait for mouse movement:
+          drawing_mouse_move({offsetX: x, offsetY: y});
         } else if (active_tool === "wire") {
           drawing_wire_click(x, y);
         } else if (active_tool === "delete") {
@@ -361,6 +364,7 @@
       function create_temporary_dot(x, y) {
         var drawing = document.getElementById("drawing");
         var dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        dot.setAttribute("id", "ohm_dot");
         dot.setAttribute("cx", x);
         dot.setAttribute("cy", y);
         dot.setAttribute("r", "10");
@@ -410,10 +414,14 @@
       function create_temporary_circle(x, y) {
         var drawing = document.getElementById("drawing");
         var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("id", "ohm_circle");
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
         circle.setAttribute("r", "10");
-        circle.setAttribute("style", "stroke:rgb(0,0,0);stroke-width:2;fill:rgb(255,255,255)");
+        circle.setAttribute("stroke-width", "2");
+        circle.setAttribute("fill", "white");
+        circle.setAttribute("stroke", "black");
+
         add_temporary_element(circle);
       }
 
