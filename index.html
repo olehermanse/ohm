@@ -259,9 +259,7 @@
       function drawing_mouse_down(event) {
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
-        if (active_tool === "dot") {
-          place_temporary_elements();
-        } else if (active_tool === "circle") {
+        if (active_tool === "dot" || active_tool === "circle") {
           place_temporary_elements();
         } else if (active_tool === "wire") {
           drawing_wire_click(x, y);
@@ -359,21 +357,6 @@
 
       // Dot functionality:
 
-      function find_dot(x, y) {
-        var drawing = document.getElementById("drawing");
-
-        for (let element of drawing.children) {
-          if (element.tagName === "dot" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
-            return element;
-          }
-        }
-        return null;
-      }
-
-      function dot_exists(x, y) {
-        return find_dot(x, y) != null;
-      }
-
       function create_temporary_dot(x, y) {
         var drawing = document.getElementById("drawing");
         var dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -402,8 +385,11 @@
       function find_circle(x, y) {
         var drawing = document.getElementById("drawing");
 
-        for (let element of drawing.children) {
-          if (element.tagName === "circle" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
+        for (let element of drawing.getElementsByTagName("circle")) {
+          var cx = element.getAttribute("cx");
+          var cy = element.getAttribute("cy");
+          var classes = element.classList;
+          if (!classes.contains("tmp") && cx === x && cy === y) {
             return element;
           }
         }
@@ -475,11 +461,6 @@
 
       function elements_to_delete(x, y) {
         var will_be_deleted = [];
-
-        var dot = find_dot(x, y);
-        if (dot) {
-          will_be_deleted.push(dot);
-        }
 
         var circle = find_circle(x, y);
         if (circle) {
