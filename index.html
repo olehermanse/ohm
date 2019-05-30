@@ -135,7 +135,7 @@
     </style>
     <script>
       // Global state:
-      var active_tool = "dot";
+      var active_tool = "wire";
       var grid_size = 50;
 
       function init_ohm() {
@@ -188,6 +188,7 @@
         line.setAttribute("y2", "" + y2);
         line.setAttribute("id", "grid_line");
         line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
+
         drawing.prepend(line);
       }
 
@@ -224,16 +225,7 @@
 
       function subdivide_grid(operation) {
         var drawing = document.getElementById("drawing");
-        if (operation === "1") {
-          grid_size = 50;
-        } else if (operation === "2") {
-          grid_size = 50 / 2;
-        } else if (operation === "3") {
-          grid_size = 50 / 3;
-        } else if (operation === "4") {
-          grid_size = 50 / 4;
-        }
-        console.log(operation);
+        grid_size = 50 / operation;
         refresh_grid_lines();
       }
 
@@ -269,6 +261,8 @@
         y = "" + round_to_grid(event.offsetY);
         if (active_tool === "dot") {
           place_temporary_elements();
+        } else if (active_tool === "circle") {
+          place_temporary_elements();
         } else if (active_tool === "wire") {
           drawing_wire_click(x, y);
         } else if (active_tool === "delete") {
@@ -285,6 +279,8 @@
           drawing_delete_hover(x, y);
         } else if (active_tool === "dot") {
           drawing_dot_hover(x, y);
+        } else if (active_tool === "circle") {
+          drawing_circle_hover(x, y);
         }
       }
 
@@ -296,6 +292,8 @@
           resize(key);
         } else if (key === "1" || key === "2" || key === "3" || key === "4") {
           subdivide_grid(key);
+        } else if (key === "Escape") {
+          activate_tool(active_tool);
         }
       }
 
@@ -319,10 +317,6 @@
 
       function text_click() {
         activate_tool("text");
-      }
-
-      function rectangle_click() {
-        activate_tool("rectangle");
       }
 
       function delete_click() {
@@ -369,7 +363,7 @@
         var drawing = document.getElementById("drawing");
 
         for (let element of drawing.children) {
-          if (element.tagName === "circle" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
+          if (element.tagName === "dot" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
             return element;
           }
         }
@@ -400,6 +394,47 @@
           create_temporary_dot(x, y);
         } else {
           update_temporary_dot(x, y);
+        }
+      }
+
+      // Circle & pin functionality:
+
+      function find_circle(x, y) {
+        var drawing = document.getElementById("drawing");
+
+        for (let element of drawing.children) {
+          if (element.tagName === "circle" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
+            return element;
+          }
+        }
+        return null;
+      }
+
+      function circle_exists(x, y) {
+        return find_circle(x, y) != null;
+      }
+
+      function create_temporary_circle(x, y) {
+        var drawing = document.getElementById("drawing");
+        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+        circle.setAttribute("r", "10");
+        circle.setAttribute("style", "stroke:rgb(0,0,0);stroke-width:2;fill:rgb(255,255,255)");
+        add_temporary_element(circle);
+      }
+
+      function update_temporary_circle(x, y) {
+        var circle = get_temporary_elements()[0]; // Assume there is 1 tmp circle
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+      }
+
+      function drawing_circle_hover(x, y) {
+        if (get_temporary_elements().length == 0) {
+          create_temporary_circle(x, y);
+        } else {
+          update_temporary_circle(x, y);
         }
       }
 
@@ -446,6 +481,11 @@
           will_be_deleted.push(dot);
         }
 
+        var circle = find_circle(x, y);
+        if (circle) {
+          will_be_deleted.push(circle);
+        }
+
         var wires = find_wires(x, y);
         for (let wire of wires) {
           will_be_deleted.push(wire);
@@ -489,7 +529,7 @@
           var last = points[points.length - 2]; // - 2 because - 1 is the hovering point
 
           // End the wire if you connected with the first, or clicked the same point twice:
-          if (first.x === x && first.y === y || last.x === x && last.y === y) {
+          if ((first.x === x && first.y === y) || (last.x === x && last.y === y)) {
             wire_end();
           } else {
             wire_continue(x, y);
@@ -504,8 +544,8 @@
         var wire = get_temporary_elements()[0];
         var points = get_points(wire);
         points[points.length - 1] = {
-          "x": x,
-          "y": y
+          x: x,
+          y: y
         };
         wire.setAttribute("points", create_points_str(points));
         var replace_tag = null;
@@ -527,8 +567,8 @@
 
       function wire_start(x, y) {
         var point = {
-          "x": x,
-          "y": y
+          x: x,
+          y: y
         };
         var points = [point, point];
         var polyline = create_wire(points, "", "polyline");
@@ -537,8 +577,8 @@
 
       function wire_continue(x, y) {
         var point = {
-          "x": x,
-          "y": y
+          x: x,
+          y: y
         };
         var wire = get_temporary_elements()[0];
         var points = get_points(wire);
@@ -589,9 +629,6 @@
           <div title="Add text" class="tool" id="text" onclick="text_click();">
             <div class="tool_icon" data-feather="type">Text</div>
           </div>
-          <div title="Add rectangle" class="tool" id="rectangle" onclick="rectangle_click();">
-            <div class="tool_icon" data-feather="square">Rectangle</div>
-          </div>
           <div title="Copy" class="tool" id="copy" onclick="copy_click();">
             <div class="tool_icon" data-feather="copy">Copy</div>
           </div>
@@ -625,6 +662,17 @@
       }
     }
 
+    function replace_circle() {
+      var wrapper = document.getElementById("circle");
+      for (let element of wrapper.children) {
+        if (element.tagName === "svg") {
+          element.setAttribute("fill", "white");
+          element.setAttribute("stroke", "currentColor");
+        }
+      }
+    }
+
     replace_dot();
+    replace_circle();
   </script>
 </html>
