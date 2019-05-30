@@ -261,6 +261,8 @@
         y = "" + round_to_grid(event.offsetY);
         if (active_tool === "dot") {
           place_temporary_elements();
+        } else if (active_tool === "circle") {
+          place_temporary_elements();
         } else if (active_tool === "wire") {
           drawing_wire_click(x, y);
         } else if (active_tool === "delete") {
@@ -277,6 +279,8 @@
           drawing_delete_hover(x, y);
         } else if (active_tool === "dot") {
           drawing_dot_hover(x, y);
+        } else if (active_tool === "circle") {
+          drawing_circle_hover(x, y);
         }
       }
 
@@ -359,7 +363,7 @@
         var drawing = document.getElementById("drawing");
 
         for (let element of drawing.children) {
-          if (element.tagName === "circle" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
+          if (element.tagName === "dot" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
             return element;
           }
         }
@@ -390,6 +394,47 @@
           create_temporary_dot(x, y);
         } else {
           update_temporary_dot(x, y);
+        }
+      }
+
+      // Circle & pin functionality:
+
+      function find_circle(x, y) {
+        var drawing = document.getElementById("drawing");
+
+        for (let element of drawing.children) {
+          if (element.tagName === "circle" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
+            return element;
+          }
+        }
+        return null;
+      }
+
+      function circle_exists(x, y) {
+        return find_circle(x, y) != null;
+      }
+
+      function create_temporary_circle(x, y) {
+        var drawing = document.getElementById("drawing");
+        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+        circle.setAttribute("r", "10");
+        circle.setAttribute("style", "stroke:rgb(0,0,0);stroke-width:2;fill:rgb(255,255,255)");
+        add_temporary_element(circle);
+      }
+
+      function update_temporary_circle(x, y) {
+        var circle = get_temporary_elements()[0]; // Assume there is 1 tmp circle
+        circle.setAttribute("cx", x);
+        circle.setAttribute("cy", y);
+      }
+
+      function drawing_circle_hover(x, y) {
+        if (get_temporary_elements().length == 0) {
+          create_temporary_circle(x, y);
+        } else {
+          update_temporary_circle(x, y);
         }
       }
 
@@ -434,6 +479,11 @@
         var dot = find_dot(x, y);
         if (dot) {
           will_be_deleted.push(dot);
+        }
+
+        var circle = find_circle(x, y);
+        if (circle) {
+          will_be_deleted.push(circle);
         }
 
         var wires = find_wires(x, y);
@@ -612,6 +662,17 @@
       }
     }
 
+    function replace_circle() {
+      var wrapper = document.getElementById("circle");
+      for (let element of wrapper.children) {
+        if (element.tagName === "svg") {
+          element.setAttribute("fill", "white");
+          element.setAttribute("stroke", "currentColor");
+        }
+      }
+    }
+
     replace_dot();
+    replace_circle();
   </script>
 </html>
