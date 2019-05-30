@@ -260,6 +260,7 @@
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
         if (active_tool === "dot" || active_tool === "circle") {
+          remove_circle(x, y); // Remove dot or circle if it exists
           place_temporary_elements();
         } else if (active_tool === "wire") {
           drawing_wire_click(x, y);
@@ -398,6 +399,12 @@
 
       function circle_exists(x, y) {
         return find_circle(x, y) != null;
+      }
+
+      function remove_circle(x, y) {
+        if (circle_exists(x, y)) {
+          find_circle(x, y).remove();
+        }
       }
 
       function create_temporary_circle(x, y) {
