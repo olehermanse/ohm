@@ -150,7 +150,8 @@
     <script>
       // Global state:
       var active_tool = "wire";
-      var grid_size = 50;
+      var GRID_SIZE = 60;
+      var grid_size = GRID_SIZE;
 
       function init_ohm() {
         document.onkeydown = key_down;
@@ -182,7 +183,7 @@
       }
 
       function get_grid_flavor(xy) {
-        if (Math.round(xy) % 50 === 0) {
+        if (Math.round(xy) % GRID_SIZE === 0) {
           return "major";
         }
         return "minor";
@@ -260,7 +261,7 @@
 
       function subdivide_grid(operation) {
         var drawing = document.getElementById("drawing");
-        grid_size = 50 / operation;
+        grid_size = GRID_SIZE / operation;
         refresh_grid_lines();
       }
 
