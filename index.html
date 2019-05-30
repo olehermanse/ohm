@@ -489,7 +489,7 @@
           var last = points[points.length - 2]; // - 2 because - 1 is the hovering point
 
           // End the wire if you connected with the first, or clicked the same point twice:
-          if (first.x === x && first.y === y || last.x === x && last.y === y) {
+          if ((first.x === x && first.y === y) || (last.x === x && last.y === y)) {
             wire_end();
           } else {
             wire_continue(x, y);
@@ -504,8 +504,8 @@
         var wire = get_temporary_elements()[0];
         var points = get_points(wire);
         points[points.length - 1] = {
-          "x": x,
-          "y": y
+          x: x,
+          y: y
         };
         wire.setAttribute("points", create_points_str(points));
         var replace_tag = null;
@@ -527,8 +527,8 @@
 
       function wire_start(x, y) {
         var point = {
-          "x": x,
-          "y": y
+          x: x,
+          y: y
         };
         var points = [point, point];
         var polyline = create_wire(points, "", "polyline");
@@ -537,8 +537,8 @@
 
       function wire_continue(x, y) {
         var point = {
-          "x": x,
-          "y": y
+          x: x,
+          y: y
         };
         var wire = get_temporary_elements()[0];
         var points = get_points(wire);
