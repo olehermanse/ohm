@@ -132,6 +132,11 @@
         border-color: #4a4a4a;
         margin: 1em;
       }
+
+      #grid_line {
+        stroke: rgb(200,200,200);
+        stroke-width:0.4;
+      }
     </style>
     <script>
       // Global state:
@@ -187,7 +192,6 @@
         line.setAttribute("x2", "" + x2);
         line.setAttribute("y2", "" + y2);
         line.setAttribute("id", "grid_line");
-        line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
 
         drawing.prepend(line);
       }
