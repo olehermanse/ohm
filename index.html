@@ -12,6 +12,10 @@
         font-family: "Varela Round", Helvetica, Arial, Sans-Serif;
       }
 
+      html {
+        display: flex;
+      }
+
       body {
         background-color: #f2f2f2;
         display: flex;
@@ -114,7 +118,7 @@
         stroke: red;
       }
 
-      circle.delete {
+      circle#ohm_dot.delete {
         fill: red;
       }
 
@@ -122,7 +126,7 @@
         stroke: blue;
       }
 
-      circle.tmp {
+      circle#ohm_dot.tmp {
         fill: blue;
       }
 
@@ -131,6 +135,16 @@
         border: 2px;
         border-color: #4a4a4a;
         margin: 1em;
+      }
+
+      #grid_line_major {
+        stroke: rgb(200, 200, 200);
+        stroke-width: 0.4;
+      }
+
+      #grid_line_minor {
+        stroke: rgb(200, 200, 200);
+        stroke-width: 0.2;
       }
     </style>
     <script>
@@ -167,34 +181,55 @@
         return Math.round(pos / grid_size) * grid_size;
       }
 
+      function get_grid_flavor(xy) {
+        if (Math.round(xy) % 50 === 0) {
+          return "major";
+        }
+        return "minor";
+      }
+
       function init_grid() {
         var drawing = document.getElementById("drawing");
         var svg_width = Number(drawing.getAttribute("width"));
         var svg_height = Number(drawing.getAttribute("height"));
         for (var x = grid_size; x < svg_width; x += grid_size) {
-          create_grid_line(x, 0, x, svg_width);
+          create_grid_line(x, 0, x, svg_width, get_grid_flavor(x));
         }
         for (var y = grid_size; y < svg_height; y += grid_size) {
-          create_grid_line(0, y, svg_height, y);
+          create_grid_line(0, y, svg_height, y, get_grid_flavor(y));
         }
       }
 
-      function create_grid_line(x1, y1, x2, y2) {
+      function num_to_string(num) {
+        var str = "" + num;
+        if (!str.includes(".")) {
+          return str;
+        }
+        str = num.toFixed(2);
+        while (str[str.length - 1] === "0") {
+          str = str.slice(0, length - 1);
+        }
+        return str;
+      }
+
+      function create_grid_line(x1, y1, x2, y2, flavor) {
         var drawing = document.getElementById("drawing");
         var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", "" + x1);
-        line.setAttribute("y1", "" + y1);
-        line.setAttribute("x2", "" + x2);
-        line.setAttribute("y2", "" + y2);
-        line.setAttribute("id", "grid_line");
-        line.setAttribute("style", "stroke:rgb(200,200,200);stroke-width:0.4");
+        line.setAttribute("x1", num_to_string(x1));
+        line.setAttribute("y1", num_to_string(y1));
+        line.setAttribute("x2", num_to_string(x2));
+        line.setAttribute("y2", num_to_string(y2));
+        line.setAttribute("id", "grid_line_" + flavor);
 
         drawing.prepend(line);
       }
 
       function remove_grid_lines(drawing) {
-        while (drawing.getElementById("grid_line")) {
-          drawing.getElementById("grid_line").remove();
+        while (drawing.getElementById("grid_line_major")) {
+          drawing.getElementById("grid_line_major").remove();
+        }
+        while (drawing.getElementById("grid_line_minor")) {
+          drawing.getElementById("grid_line_minor").remove();
         }
       }
 
@@ -244,7 +279,15 @@
       function add_temporary_element(element) {
         element.classList.add("tmp");
         var drawing = document.getElementById("drawing");
-        drawing.appendChild(element);
+
+        if (element.tagName === "circle") {
+          // Circles and dots are appended at the end:
+          drawing.appendChild(element);
+        } else {
+          // Others are inserted before the circles / dots:
+          var firstCircle = drawing.getElementsByTagName("circle")[0];
+          drawing.insertBefore(element, firstCircle);
+        }
       }
 
       function place_temporary_elements() {
@@ -259,14 +302,19 @@
       function drawing_mouse_down(event) {
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
-        if (active_tool === "dot") {
+        if (active_tool === "dot" || active_tool === "circle") {
+          remove_circle(x, y); // (If it exists)
           place_temporary_elements();
-        } else if (active_tool === "circle") {
-          place_temporary_elements();
+
+          // Create temporary element immediately, don't wait for mouse movement:
+          drawing_mouse_move({
+            offsetX: x,
+            offsetY: y
+          });
         } else if (active_tool === "wire") {
           drawing_wire_click(x, y);
         } else if (active_tool === "delete") {
-          drawing_delete_click(x, y);
+          drawing_delete_click(event);
         }
       }
 
@@ -276,7 +324,7 @@
         if (active_tool === "wire") {
           drawing_wire_hover(x, y);
         } else if (active_tool === "delete") {
-          drawing_delete_hover(x, y);
+          drawing_delete_hover(event);
         } else if (active_tool === "dot") {
           drawing_dot_hover(x, y);
         } else if (active_tool === "circle") {
@@ -359,24 +407,10 @@
 
       // Dot functionality:
 
-      function find_dot(x, y) {
-        var drawing = document.getElementById("drawing");
-
-        for (let element of drawing.children) {
-          if (element.tagName === "dot" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
-            return element;
-          }
-        }
-        return null;
-      }
-
-      function dot_exists(x, y) {
-        return find_dot(x, y) != null;
-      }
-
       function create_temporary_dot(x, y) {
         var drawing = document.getElementById("drawing");
         var dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        dot.setAttribute("id", "ohm_dot");
         dot.setAttribute("cx", x);
         dot.setAttribute("cy", y);
         dot.setAttribute("r", "10");
@@ -402,8 +436,11 @@
       function find_circle(x, y) {
         var drawing = document.getElementById("drawing");
 
-        for (let element of drawing.children) {
-          if (element.tagName === "circle" && element.getAttribute("cx") === x && element.getAttribute("cy") === y && element.getAttribute("r") === "10") {
+        for (let element of drawing.getElementsByTagName("circle")) {
+          var cx = element.getAttribute("cx");
+          var cy = element.getAttribute("cy");
+          var classes = element.classList;
+          if (!classes.contains("tmp") && cx === x && cy === y) {
             return element;
           }
         }
@@ -414,13 +451,23 @@
         return find_circle(x, y) != null;
       }
 
+      function remove_circle(x, y) {
+        if (circle_exists(x, y)) {
+          find_circle(x, y).remove();
+        }
+      }
+
       function create_temporary_circle(x, y) {
         var drawing = document.getElementById("drawing");
         var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("id", "ohm_circle");
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
         circle.setAttribute("r", "10");
-        circle.setAttribute("style", "stroke:rgb(0,0,0);stroke-width:2;fill:rgb(255,255,255)");
+        circle.setAttribute("stroke-width", "2");
+        circle.setAttribute("fill", "white");
+        circle.setAttribute("stroke", "black");
+
         add_temporary_element(circle);
       }
 
@@ -473,37 +520,32 @@
         return matches;
       }
 
-      function elements_to_delete(x, y) {
+      function elements_to_delete(event) {
         var will_be_deleted = [];
-
-        var dot = find_dot(x, y);
-        if (dot) {
-          will_be_deleted.push(dot);
-        }
-
-        var circle = find_circle(x, y);
-        if (circle) {
-          will_be_deleted.push(circle);
-        }
-
-        var wires = find_wires(x, y);
-        for (let wire of wires) {
-          will_be_deleted.push(wire);
+        var element = event.path[0];
+        if (element) {
+          if (
+            element.tagName === "circle" ||
+            element.tagName === "polyline" ||
+            element.tagName === "polygon"
+          ) {
+            will_be_deleted.push(element);
+          }
         }
 
         return will_be_deleted;
       }
 
-      function drawing_delete_click(x, y) {
-        var elements = elements_to_delete(x, y);
+      function drawing_delete_click(event) {
+        var elements = elements_to_delete(event);
 
         for (let element of elements) {
           element.remove();
         }
       }
 
-      function drawing_delete_hover(x, y) {
-        var to_delete = elements_to_delete(x, y);
+      function drawing_delete_hover(event) {
+        var to_delete = elements_to_delete(event);
         var drawing = document.getElementById("drawing");
 
         for (let element of drawing.children) {
