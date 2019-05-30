@@ -134,8 +134,8 @@
       }
 
       #grid_line {
-        stroke: rgb(200,200,200);
-        stroke-width:0.4;
+        stroke: rgb(200, 200, 200);
+        stroke-width: 0.4;
       }
     </style>
     <script>
@@ -276,7 +276,10 @@
           place_temporary_elements();
 
           // Create temporary element immediately, don't wait for mouse movement:
-          drawing_mouse_move({offsetX: x, offsetY: y});
+          drawing_mouse_move({
+            offsetX: x,
+            offsetY: y
+          });
         } else if (active_tool === "wire") {
           drawing_wire_click(x, y);
         } else if (active_tool === "delete") {
