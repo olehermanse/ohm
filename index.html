@@ -244,7 +244,15 @@
       function add_temporary_element(element) {
         element.classList.add("tmp");
         var drawing = document.getElementById("drawing");
-        drawing.appendChild(element);
+
+        if (element.tagName === "circle") {
+          // Circles and dots are appended at the end:
+          drawing.appendChild(element);
+        } else {
+          // Others are inserted before the circles / dots:
+          var firstCircle = drawing.getElementsByTagName("circle")[0];
+          drawing.insertBefore(element, firstCircle);
+        }
       }
 
       function place_temporary_elements() {
