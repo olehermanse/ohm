@@ -158,7 +158,7 @@
         var p = document.getElementById("drawing");
         p.onmousedown = drawing_mouse_down;
         p.onmousemove = drawing_mouse_move;
-        init_grid();
+        refresh_grid_lines();
         activate_tool(active_tool);
       }
 
@@ -382,8 +382,30 @@
         download("schematic.svg", svg_text);
       }
 
+      function load_svg(content) {
+        var drawing = document.getElementById("drawing");
+        drawing.outerHTML = content;
+        init_ohm();
+      }
+
+      // https://stackoverflow.com/questions/16215771/
+      function open_file_dialog(on_complete) {
+        var input = document.createElement("input");
+        input.type = "file";
+        input.onchange = e => {
+          var file = e.target.files[0];
+          var reader = new FileReader();
+          reader.readAsText(file, "UTF-8");
+          reader.onload = readerEvent => {
+            var content = readerEvent.target.result;
+            on_complete(content);
+          };
+        };
+        input.click();
+      }
+
       function load_click() {
-        alert("Load is not implemented (yet)!");
+        open_file_dialog(load_svg);
       }
 
       function share_click() {
