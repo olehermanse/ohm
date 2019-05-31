@@ -461,6 +461,7 @@
         dot.setAttribute("cx", x);
         dot.setAttribute("cy", y);
         dot.setAttribute("r", "10");
+        dot.setAttribute("stroke-width", "3");
         add_temporary_element(dot);
       }
 
@@ -511,7 +512,7 @@
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
         circle.setAttribute("r", "10");
-        circle.setAttribute("stroke-width", "2");
+        circle.setAttribute("stroke-width", "3");
         circle.setAttribute("fill", "white");
         circle.setAttribute("stroke", "black");
 
@@ -691,7 +692,7 @@
         var line = document.createElementNS("http://www.w3.org/2000/svg", tag);
         line.setAttribute("points", create_points_str(points));
         line.setAttribute("id", id);
-        line.setAttribute("stroke-width", "10");
+        line.setAttribute("stroke-width", "8");
         line.setAttribute("fill", "none");
         line.setAttribute("stroke", "black");
         return line;
@@ -701,7 +702,7 @@
   <body onload="init_ohm();">
     <div class="sidebar">
       <div class="sidebar_content">
-        <h1 class="toolheader"><a href="https://ohm.oleherman.com/">ohm</a></h1>
+        <h1 class="toolheader"><a href="https://github.com/olehermanse/ohm/">ohm</a></h1>
         <div id="toolbox" class="toolbox">
           <div title="Add wire" class="tool" id="wire" onclick="wire_click();">
             <div class="tool_icon" data-feather="edit-2">Wire</div>
@@ -736,7 +737,7 @@
         </div>
       </div>
     </div>
-    <svg id="drawing" width="600" height="600" xmlns="http://www.w3.org/2000/svg"></svg>
+    <svg id="drawing" width="720" height="720" xmlns="http://www.w3.org/2000/svg"></svg>
   </body>
   <script>
     feather.replace();
@@ -755,7 +756,6 @@
       var wrapper = document.getElementById("circle");
       for (let element of wrapper.children) {
         if (element.tagName === "svg") {
-          element.setAttribute("fill", "white");
           element.setAttribute("stroke", "currentColor");
         }
       }
