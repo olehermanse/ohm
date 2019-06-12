@@ -336,6 +336,10 @@
       // Keyboard events:
 
       function key_down(event) {
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+          return;
+        }
+        console.log(event);
         var key = event.key;
         switch (key) {
           case "+":
