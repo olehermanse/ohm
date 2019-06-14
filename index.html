@@ -621,8 +621,10 @@
         return matches;
       }
 
-      function elements_to_delete(event) {
-        var will_be_deleted = [];
+      function hovered_elements(event) {
+        // Returns a list of 0-1 elements that mouse is currently hovering over
+        // Can be expanded to add elements below the top element later
+        var elements = [];
         var element = event.path[0];
         if (element) {
           if (
@@ -630,15 +632,15 @@
             element.tagName === "polyline" ||
             element.tagName === "polygon"
           ) {
-            will_be_deleted.push(element);
-          }
+            elements.push(element);
+          } // Skip other tags; "line" is used for grid lines
         }
 
-        return will_be_deleted;
+        return elements;
       }
 
       function drawing_delete_click(event) {
-        var elements = elements_to_delete(event);
+        var elements = hovered_elements(event);
 
         for (let element of elements) {
           element.remove();
@@ -646,7 +648,7 @@
       }
 
       function drawing_delete_hover(event) {
-        var to_delete = elements_to_delete(event);
+        var to_delete = hovered_elements(event);
         var drawing = document.getElementById("drawing");
 
         for (let element of drawing.children) {
