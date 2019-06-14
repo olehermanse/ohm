@@ -158,6 +158,7 @@
 
         var p = document.getElementById("drawing");
         p.onmousedown = drawing_mouse_down;
+        p.onmouseup = drawing_mouse_up;
         p.onmousemove = drawing_mouse_move;
         refresh_grid_lines();
         activate_tool(active_tool);
@@ -303,7 +304,7 @@
       function drawing_mouse_down(event) {
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
-        if (active_tool === "dot" || active_tool === "circle") {
+        if (active_tool === "dot") {
           remove_circle(x, y); // (If it exists)
           place_temporary_elements();
 
@@ -319,17 +320,35 @@
         }
       }
 
+      function drawing_mouse_up(event) {
+        var x = "" + round_to_grid(event.offsetX);
+        var y = "" + round_to_grid(event.offsetY);
+        if (active_tool === "circle") {
+          place_temporary_elements();
+
+          // Create temporary circle immediately, don't wait for mouse movement:
+          drawing_mouse_move({
+            offsetX: x,
+            offsetY: y
+          });
+        }
+      }
+
       function drawing_mouse_move(event) {
-        x = "" + round_to_grid(event.offsetX);
-        y = "" + round_to_grid(event.offsetY);
+        var mouse_pressed = event.buttons > 0;
+        var x = "" + round_to_grid(event.offsetX);
+        var y = "" + round_to_grid(event.offsetY);
         if (active_tool === "wire") {
           drawing_wire_hover(x, y);
         } else if (active_tool === "delete") {
           drawing_delete_hover(event);
         } else if (active_tool === "dot") {
           drawing_dot_hover(x, y);
-        } else if (active_tool === "circle") {
+        } else if (active_tool === "circle" && !mouse_pressed) {
           drawing_circle_hover(x, y);
+        } else if (active_tool === "circle" && mouse_pressed) {
+          // Offset is used to calculate radius (and then rounded):
+          drawing_circle_drag(event.offsetX, event.offsetY);
         }
       }
 
@@ -509,32 +528,62 @@
         }
       }
 
+      function set_circle_small(circle) {
+        circle.setAttribute("r", "10");
+        circle.setAttribute("stroke-width", "3");
+        circle.setAttribute("fill", "white");
+        circle.setAttribute("stroke", "black");
+      }
+
+      function set_circle_radius(circle, radius) {
+        circle.setAttribute("r", "" + radius);
+        circle.setAttribute("stroke-width", "8");
+        circle.setAttribute("fill", "none");
+        circle.setAttribute("stroke", "black");
+      }
+
       function create_temporary_circle(x, y) {
         var drawing = document.getElementById("drawing");
         var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("id", "ohm_circle");
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
-        circle.setAttribute("r", "10");
-        circle.setAttribute("stroke-width", "3");
-        circle.setAttribute("fill", "white");
-        circle.setAttribute("stroke", "black");
-
+        set_circle_small(circle);
         add_temporary_element(circle);
       }
 
-      function update_temporary_circle(x, y) {
+      function move_temporary_circle(x, y) {
         var circle = get_temporary_elements()[0]; // Assume there is 1 tmp circle
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
+      }
+
+      function scale_temporary_circle(x, y) {
+        var circle = get_temporary_elements()[0]; // Assume there is 1 tmp circle
+        var cx = circle.getAttribute("cx");
+        var cy = circle.getAttribute("cy");
+        var distance_squared = Math.pow(x - cx, 2) + Math.pow(y - cy, 2);
+        var distance = Math.sqrt(distance_squared);
+        if (distance < grid_size) {
+          set_circle_small(circle);
+          return;
+        }
+        set_circle_radius(circle, round_to_grid(distance));
       }
 
       function drawing_circle_hover(x, y) {
         if (get_temporary_elements().length == 0) {
           create_temporary_circle(x, y);
         } else {
-          update_temporary_circle(x, y);
+          move_temporary_circle(x, y);
         }
+      }
+
+      function drawing_circle_drag(x, y) {
+        if (get_temporary_elements().length == 0) {
+          return; // Click event should create element, do nothing
+        }
+        scale_temporary_circle(x, y);
       }
 
       // Delete functionality:
