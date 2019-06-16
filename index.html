@@ -425,6 +425,12 @@
       function save_click() {
         var copy = document.getElementById("drawing").cloneNode(true);
         remove_grid_lines(copy);
+        for (let element of copy.children) {
+          element.removeAttribute("id");
+          element.removeAttribute("class");
+        }
+        copy.removeAttribute("id");
+        copy.removeAttribute("class");
         var svg_text = copy.outerHTML;
         download("schematic.svg", svg_text);
       }
