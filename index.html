@@ -347,8 +347,7 @@
         } else if (active_tool === "circle" && !mouse_pressed) {
           drawing_circle_hover(x, y);
         } else if (active_tool === "circle" && mouse_pressed) {
-          // Offset is used to calculate radius (and then rounded):
-          drawing_circle_drag(event.offsetX, event.offsetY);
+          drawing_circle_drag(x, y);
         }
       }
 
@@ -573,7 +572,7 @@
           set_circle_small(circle);
           return;
         }
-        set_circle_radius(circle, round_to_grid(distance));
+        set_circle_radius(circle, distance);
       }
 
       function drawing_circle_hover(x, y) {
