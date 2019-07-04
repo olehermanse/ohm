@@ -598,24 +598,6 @@
         return results;
       }
 
-      function find_wires(x, y) {
-        var matches = [];
-        var drawing = document.getElementById("drawing");
-
-        for (let element of drawing.children) {
-          if (element.tagName === "polyline" || element.tagName === "polygon") {
-            var points = get_points(element);
-            for (let point of points) {
-              if (x === point.x && y === point.y) {
-                matches.push(element);
-                break; // Break out of points loop, continue to next element
-              }
-            }
-          }
-        }
-        return matches;
-      }
-
       function hovered_elements(event) {
         // Returns a list of 0-1 elements that mouse is currently hovering over
         // Can be expanded to add elements below the top element later
