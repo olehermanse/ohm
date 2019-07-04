@@ -657,17 +657,21 @@
         }
       }
 
-      function drawing_delete_hover(event) {
-        var to_delete = hovered_elements(event);
+      function set_class_for_hovered(event, class_name) {
+        var hovered = hovered_elements(event);
         var drawing = document.getElementById("drawing");
 
         for (let element of drawing.children) {
-          if (to_delete.includes(element)) {
-            element.classList.add("delete");
+          if (hovered.includes(element)) {
+            element.classList.add(class_name);
           } else {
-            element.classList.remove("delete");
+            element.classList.remove(class_name);
           }
         }
+      }
+
+      function drawing_delete_hover(event) {
+        set_class_for_hovered(event, "delete");
       }
 
       // Wire tool:
