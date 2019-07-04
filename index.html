@@ -266,6 +266,9 @@
         refresh_grid_lines();
       }
 
+      // General functions for manipulating the svg drawing:
+      // (Selecting, adding, removing)
+
       function get_elements_by_class(class_name) {
         var drawing = document.getElementById("drawing");
         return drawing.getElementsByClassName(class_name);
@@ -300,6 +303,37 @@
         var temps = get_temporary_elements();
         for (let element of temps) {
           element.classList.remove("tmp");
+        }
+      }
+
+      function hovered_elements(event) {
+        // Returns a list of 0-1 elements that mouse is currently hovering over
+        // Can be expanded to add elements below the top element later
+        var elements = [];
+        var element = event.path[0];
+        if (element) {
+          if (
+            element.tagName === "circle" ||
+            element.tagName === "polyline" ||
+            element.tagName === "polygon"
+          ) {
+            elements.push(element);
+          } // Skip other tags; "line" is used for grid lines
+        }
+
+        return elements;
+      }
+
+      function set_class_for_hovered(event, class_name) {
+        var hovered = hovered_elements(event);
+        var drawing = document.getElementById("drawing");
+
+        for (let element of drawing.children) {
+          if (hovered.includes(element)) {
+            element.classList.add(class_name);
+          } else {
+            element.classList.remove(class_name);
+          }
         }
       }
 
@@ -395,6 +429,8 @@
         }
       }
 
+      // Functionality related to the left toolbar:
+
       function toolbar(icon_name) {
         if (icon_name === "save") {
           save();
@@ -449,7 +485,7 @@
         alert("Share is not implemented (yet)!");
       }
 
-      // Save functionality:
+      // Save to file (using browser download):
       // From: https://gist.github.com/liabru/11263260#gistcomment-2894088
       function download(filename, text) {
         var element = document.createElement("a");
@@ -464,7 +500,7 @@
         document.body.removeChild(element);
       }
 
-      // Dot functionality:
+      // Dot tool functions:
 
       function create_temporary_dot(x, y) {
         var drawing = document.getElementById("drawing");
@@ -493,7 +529,7 @@
         }
       }
 
-      // Circle & pin functionality:
+      // Circle & pin tool functions:
 
       function find_circle(x, y) {
         var drawing = document.getElementById("drawing");
@@ -581,7 +617,21 @@
         scale_temporary_circle(x, y);
       }
 
-      // Delete functionality:
+      // Delete tool functions:
+
+      function drawing_delete_mouse_down(event) {
+        var elements = hovered_elements(event);
+
+        for (let element of elements) {
+          element.remove();
+        }
+      }
+
+      function drawing_delete_hover(event) {
+        set_class_for_hovered(event, "delete");
+      }
+
+      // Wire tool functions:
 
       function get_points(polyline) {
         var points = polyline.getAttribute("points").split(" ");
@@ -598,50 +648,13 @@
         return results;
       }
 
-      function hovered_elements(event) {
-        // Returns a list of 0-1 elements that mouse is currently hovering over
-        // Can be expanded to add elements below the top element later
-        var elements = [];
-        var element = event.path[0];
-        if (element) {
-          if (
-            element.tagName === "circle" ||
-            element.tagName === "polyline" ||
-            element.tagName === "polygon"
-          ) {
-            elements.push(element);
-          } // Skip other tags; "line" is used for grid lines
+      function create_points_str(points) {
+        var string = "";
+        for (let point of points) {
+          string += "" + point.x + "," + point.y + " ";
         }
-
-        return elements;
+        return string.trim();
       }
-
-      function drawing_delete_mouse_down(event) {
-        var elements = hovered_elements(event);
-
-        for (let element of elements) {
-          element.remove();
-        }
-      }
-
-      function set_class_for_hovered(event, class_name) {
-        var hovered = hovered_elements(event);
-        var drawing = document.getElementById("drawing");
-
-        for (let element of drawing.children) {
-          if (hovered.includes(element)) {
-            element.classList.add(class_name);
-          } else {
-            element.classList.remove(class_name);
-          }
-        }
-      }
-
-      function drawing_delete_hover(event) {
-        set_class_for_hovered(event, "delete");
-      }
-
-      // Wire tool:
 
       function drawing_wire_mouse_down(x, y) {
         if (get_temporary_elements().length === 0) {
@@ -716,14 +729,6 @@
 
       function wire_end() {
         place_temporary_elements();
-      }
-
-      function create_points_str(points) {
-        var string = "";
-        for (let point of points) {
-          string += "" + point.x + "," + point.y + " ";
-        }
-        return string.trim();
       }
 
       function create_wire(points, id, tag) {
