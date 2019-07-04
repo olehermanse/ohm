@@ -161,6 +161,7 @@
       var GRID_SIZE = 60;
       var grid_size = GRID_SIZE;
       var translation = null;
+      var mouse = null;
 
       function init_ohm() {
         document.onkeydown = key_down;
@@ -360,7 +361,18 @@
 
       // Mouse events:
 
+      function update_mouse(event) {
+        mouse = { target: null, offsetX: event.offsetX, offsetY: event.offsetY };
+      }
+
+      function fake_mouse_move() {
+        if (mouse != null) {
+          drawing_mouse_move(mouse);
+        }
+      }
+
       function drawing_mouse_down(event) {
+        update_mouse(event);
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
         if (active_tool === "dot") {
@@ -368,10 +380,7 @@
           place_temporary_elements();
 
           // Create temporary element immediately, don't wait for mouse movement:
-          drawing_mouse_move({
-            offsetX: x,
-            offsetY: y
-          });
+          fake_mouse_move();
         } else if (active_tool === "wire") {
           drawing_wire_mouse_down(x, y);
         } else if (active_tool === "delete") {
@@ -382,20 +391,19 @@
       }
 
       function drawing_mouse_up(event) {
+        update_mouse(event);
         var x = "" + round_to_grid(event.offsetX);
         var y = "" + round_to_grid(event.offsetY);
         if (active_tool === "circle") {
           place_temporary_elements();
 
           // Create temporary circle immediately, don't wait for mouse movement:
-          drawing_mouse_move({
-            offsetX: x,
-            offsetY: y
-          });
+          fake_mouse_move();
         }
       }
 
       function drawing_mouse_move(event) {
+        update_mouse(event);
         var mouse_pressed = event.buttons > 0;
         var x = "" + round_to_grid(event.offsetX);
         var y = "" + round_to_grid(event.offsetY);
@@ -453,6 +461,7 @@
             activate_tool("delete");
             break;
         }
+        fake_mouse_move();
       }
 
       // Functionality related to the left toolbar:
