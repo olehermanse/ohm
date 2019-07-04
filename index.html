@@ -175,6 +175,7 @@
 
       function activate_tool(new_state) {
         clear_temporary_elements();
+        unselect_elements();
         active_tool = new_state;
         var toolbox = document.getElementById("toolbox");
         for (let tool of toolbox.children) {
@@ -315,6 +316,17 @@
         }
       }
 
+      // Copy and delete tools select elements inside svg using classes (coloring them)
+      // This function removes those classes, for example when switching tool
+      function unselect_elements() {
+        var drawing = document.getElementById("drawing");
+        for (let element of drawing.children) {
+          element.classList.remove("copy");
+          element.classList.remove("delete");
+          // tmp should be removed using place_temporary_elements() or clear_temporary_elements()
+        }
+      }
+
       function hovered_elements(event) {
         // Returns a list of 0-1 elements that mouse is currently hovering over
         // Can be expanded to add elements below the top element later
@@ -422,6 +434,7 @@
             break;
           case "Escape":
             clear_temporary_elements();
+            unselect_elements();
             break;
           case "s":
             save();
