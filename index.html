@@ -122,6 +122,14 @@
         fill: red;
       }
 
+      .copy {
+        stroke: green;
+      }
+
+      circle#ohm_dot.copy {
+        fill: green;
+      }
+
       .tmp {
         stroke: blue;
       }
@@ -152,6 +160,7 @@
       var active_tool = "wire";
       var GRID_SIZE = 60;
       var grid_size = GRID_SIZE;
+      var translation = null;
 
       function init_ohm() {
         document.onkeydown = key_down;
@@ -355,6 +364,8 @@
           drawing_wire_mouse_down(x, y);
         } else if (active_tool === "delete") {
           drawing_delete_mouse_down(event);
+        } else if (active_tool === "copy") {
+          drawing_copy_mouse_down(event);
         }
       }
 
@@ -380,6 +391,8 @@
           drawing_wire_hover(x, y);
         } else if (active_tool === "delete") {
           drawing_delete_hover(event);
+        } else if (active_tool === "copy") {
+          drawing_copy_hover(event);
         } else if (active_tool === "dot") {
           drawing_dot_hover(x, y);
         } else if (active_tool === "circle" && !mouse_pressed) {
@@ -629,6 +642,74 @@
 
       function drawing_delete_hover(event) {
         set_class_for_hovered(event, "delete");
+      }
+
+      // Copy tool functions:
+
+      function translate_element(element, x, y) {
+        x = Number(x);
+        y = Number(y);
+        if (element.tagName === "circle") {
+          var old_x = Number(element.getAttribute("cx"));
+          var old_y = Number(element.getAttribute("cy"));
+          element.setAttribute("cx", old_x + x);
+          element.setAttribute("cy", old_y + y);
+        } else if (element.tagName === "polygon" || element.tagName === "polyline") {
+          var points = get_points(element);
+          for (var i = 0; i < points.length; ++i) {
+            points[i].x = Number(points[i].x) + x;
+            points[i].y = Number(points[i].y) + y;
+          }
+          element.setAttribute("points", create_points_str(points));
+        } else {
+          alert("Cannot move this: " + element.tagName);
+        }
+      }
+
+      function drawing_copy_hover(event) {
+        var temporary_elements = get_temporary_elements();
+        if (temporary_elements.length === 0) {
+          // No click yet - Make hovered elemnts green:
+          set_class_for_hovered(event, "copy");
+        } else {
+          // Temporary elements exist - translate them:
+
+          var mouse_x = round_to_grid(event.offsetX);
+          var mouse_y = round_to_grid(event.offsetY);
+
+          var translate_x = mouse_x - translation.past.x;
+          var translate_y = mouse_y - translation.past.y;
+
+          for (let element of temporary_elements) {
+            translate_element(element, translate_x, translate_y);
+          }
+
+          translation.past.x = mouse_x;
+          translation.past.y = mouse_y;
+        }
+      }
+
+      function drawing_copy_mouse_down(event) {
+        var temporary_elements = get_temporary_elements();
+        if (temporary_elements.length === 0) {
+          // First click - create copies:
+          var elements = hovered_elements(event);
+
+          for (let element of elements) {
+            add_temporary_element(element.cloneNode(true));
+          }
+          var mouse_x = round_to_grid(event.offsetX);
+          var mouse_y = round_to_grid(event.offsetY);
+          translation = {};
+          translation.past = {};
+          translation.past.x = mouse_x;
+          translation.past.y = mouse_y;
+        } else {
+          // Second click - Place copies:
+          place_temporary_elements();
+          translation = null;
+          drawing_copy_hover(event);
+        }
       }
 
       // Wire tool functions:
