@@ -331,7 +331,7 @@
         // Returns a list of 0-1 elements that mouse is currently hovering over
         // Can be expanded to add elements below the top element later
         var elements = [];
-        var element = event.path[0];
+        var element = event.target;
         if (element) {
           if (
             element.tagName === "circle" ||
