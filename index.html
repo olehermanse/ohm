@@ -266,9 +266,13 @@
         refresh_grid_lines();
       }
 
-      function get_temporary_elements() {
+      function get_elements_by_class(class_name) {
         var drawing = document.getElementById("drawing");
-        return drawing.getElementsByClassName("tmp");
+        return drawing.getElementsByClassName(class_name);
+      }
+
+      function get_temporary_elements() {
+        return get_elements_by_class("tmp");
       }
 
       function clear_temporary_elements() {
