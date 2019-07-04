@@ -470,6 +470,7 @@
       }
 
       function save() {
+        clear_temporary_elements();
         var copy = document.getElementById("drawing").cloneNode(true);
         remove_grid_lines(copy);
         for (let element of copy.children) {
