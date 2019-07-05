@@ -122,6 +122,14 @@
         fill: red;
       }
 
+      .copy {
+        stroke: green;
+      }
+
+      circle#ohm_dot.copy {
+        fill: green;
+      }
+
       .tmp {
         stroke: blue;
       }
@@ -152,6 +160,8 @@
       var active_tool = "wire";
       var GRID_SIZE = 60;
       var grid_size = GRID_SIZE;
+      var translation = null;
+      var mouse = null;
 
       function init_ohm() {
         document.onkeydown = key_down;
@@ -166,6 +176,7 @@
 
       function activate_tool(new_state) {
         clear_temporary_elements();
+        unselect_elements();
         active_tool = new_state;
         var toolbox = document.getElementById("toolbox");
         for (let tool of toolbox.children) {
@@ -266,9 +277,16 @@
         refresh_grid_lines();
       }
 
-      function get_temporary_elements() {
+      // General functions for manipulating the svg drawing:
+      // (Selecting, adding, removing)
+
+      function get_elements_by_class(class_name) {
         var drawing = document.getElementById("drawing");
-        return drawing.getElementsByClassName("tmp");
+        return drawing.getElementsByClassName(class_name);
+      }
+
+      function get_temporary_elements() {
+        return get_elements_by_class("tmp");
       }
 
       function clear_temporary_elements() {
@@ -299,9 +317,62 @@
         }
       }
 
+      // Copy and delete tools select elements inside svg using classes (coloring them)
+      // This function removes those classes, for example when switching tool
+      function unselect_elements() {
+        var drawing = document.getElementById("drawing");
+        for (let element of drawing.children) {
+          element.classList.remove("copy");
+          element.classList.remove("delete");
+          // tmp should be removed using place_temporary_elements() or clear_temporary_elements()
+        }
+      }
+
+      function hovered_elements(event) {
+        // Returns a list of 0-1 elements that mouse is currently hovering over
+        // Can be expanded to add elements below the top element later
+        var elements = [];
+        var element = event.target;
+        if (element) {
+          if (
+            element.tagName === "circle" ||
+            element.tagName === "polyline" ||
+            element.tagName === "polygon"
+          ) {
+            elements.push(element);
+          } // Skip other tags; "line" is used for grid lines
+        }
+
+        return elements;
+      }
+
+      function set_class_for_hovered(event, class_name) {
+        var hovered = hovered_elements(event);
+        var drawing = document.getElementById("drawing");
+
+        for (let element of drawing.children) {
+          if (hovered.includes(element)) {
+            element.classList.add(class_name);
+          } else {
+            element.classList.remove(class_name);
+          }
+        }
+      }
+
       // Mouse events:
 
+      function update_mouse(event) {
+        mouse = { target: null, offsetX: event.offsetX, offsetY: event.offsetY };
+      }
+
+      function fake_mouse_move() {
+        if (mouse != null) {
+          drawing_mouse_move(mouse);
+        }
+      }
+
       function drawing_mouse_down(event) {
+        update_mouse(event);
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
         if (active_tool === "dot") {
@@ -309,32 +380,30 @@
           place_temporary_elements();
 
           // Create temporary element immediately, don't wait for mouse movement:
-          drawing_mouse_move({
-            offsetX: x,
-            offsetY: y
-          });
+          fake_mouse_move();
         } else if (active_tool === "wire") {
-          drawing_wire_click(x, y);
+          drawing_wire_mouse_down(x, y);
         } else if (active_tool === "delete") {
-          drawing_delete_click(event);
+          drawing_delete_mouse_down(event);
+        } else if (active_tool === "copy") {
+          drawing_copy_mouse_down(event);
         }
       }
 
       function drawing_mouse_up(event) {
+        update_mouse(event);
         var x = "" + round_to_grid(event.offsetX);
         var y = "" + round_to_grid(event.offsetY);
         if (active_tool === "circle") {
           place_temporary_elements();
 
           // Create temporary circle immediately, don't wait for mouse movement:
-          drawing_mouse_move({
-            offsetX: x,
-            offsetY: y
-          });
+          fake_mouse_move();
         }
       }
 
       function drawing_mouse_move(event) {
+        update_mouse(event);
         var mouse_pressed = event.buttons > 0;
         var x = "" + round_to_grid(event.offsetX);
         var y = "" + round_to_grid(event.offsetY);
@@ -342,6 +411,8 @@
           drawing_wire_hover(x, y);
         } else if (active_tool === "delete") {
           drawing_delete_hover(event);
+        } else if (active_tool === "copy") {
+          drawing_copy_hover(event);
         } else if (active_tool === "dot") {
           drawing_dot_hover(x, y);
         } else if (active_tool === "circle" && !mouse_pressed) {
@@ -371,64 +442,51 @@
             break;
           case "Escape":
             clear_temporary_elements();
+            unselect_elements();
             break;
           case "s":
-            save_click();
+            save();
             break;
           case "w":
           case "p":
-            wire_click();
+            activate_tool("wire");
             break;
           case "c":
-            circle_click();
+            activate_tool("circle");
             break;
           case "d":
-            dot_click();
+            activate_tool("dot");
             break;
           case "e":
-            delete_click();
+            activate_tool("delete");
             break;
+        }
+        fake_mouse_move();
+      }
+
+      // Functionality related to the left toolbar:
+
+      function toolbar(icon_name) {
+        clear_temporary_elements();
+        if (icon_name === "save") {
+          save();
+        } else if (icon_name == "load") {
+          load();
+        } else if (icon_name == "share") {
+          share();
+        } else {
+          activate_tool(icon_name);
         }
       }
 
-      // Toolbar click functions:
-
-      function wire_click() {
-        activate_tool("wire");
-      }
-
-      function dot_click() {
-        activate_tool("dot");
-      }
-
-      function circle_click() {
-        activate_tool("circle");
-      }
-
-      function component_click() {
-        activate_tool("component");
-      }
-
-      function text_click() {
-        activate_tool("text");
-      }
-
-      function delete_click() {
-        activate_tool("delete");
-      }
-
-      function copy_click() {
-        activate_tool("copy");
-      }
-
-      function save_click() {
+      function save() {
+        clear_temporary_elements();
         var copy = document.getElementById("drawing").cloneNode(true);
         remove_grid_lines(copy);
         for (let element of copy.children) {
           element.removeAttribute("id");
           element.removeAttribute("class");
         }
-        copy.removeAttribute("id");
         copy.removeAttribute("class");
         var svg_text = copy.outerHTML;
         download("schematic.svg", svg_text);
@@ -456,15 +514,15 @@
         input.click();
       }
 
-      function load_click() {
+      function load() {
         open_file_dialog(load_svg);
       }
 
-      function share_click() {
+      function share() {
         alert("Share is not implemented (yet)!");
       }
 
-      // Save functionality:
+      // Save to file (using browser download):
       // From: https://gist.github.com/liabru/11263260#gistcomment-2894088
       function download(filename, text) {
         var element = document.createElement("a");
@@ -479,7 +537,7 @@
         document.body.removeChild(element);
       }
 
-      // Dot functionality:
+      // Dot tool functions:
 
       function create_temporary_dot(x, y) {
         var drawing = document.getElementById("drawing");
@@ -508,7 +566,7 @@
         }
       }
 
-      // Circle & pin functionality:
+      // Circle & pin tool functions:
 
       function find_circle(x, y) {
         var drawing = document.getElementById("drawing");
@@ -591,12 +649,94 @@
 
       function drawing_circle_drag(x, y) {
         if (get_temporary_elements().length == 0) {
-          return; // Click event should create element, do nothing
+          return; // Mouse down event should create element, do nothing
         }
         scale_temporary_circle(x, y);
       }
 
-      // Delete functionality:
+      // Delete tool functions:
+
+      function drawing_delete_mouse_down(event) {
+        var elements = hovered_elements(event);
+
+        for (let element of elements) {
+          element.remove();
+        }
+      }
+
+      function drawing_delete_hover(event) {
+        set_class_for_hovered(event, "delete");
+      }
+
+      // Copy tool functions:
+
+      function translate_element(element, x, y) {
+        x = Number(x);
+        y = Number(y);
+        if (element.tagName === "circle") {
+          var old_x = Number(element.getAttribute("cx"));
+          var old_y = Number(element.getAttribute("cy"));
+          element.setAttribute("cx", old_x + x);
+          element.setAttribute("cy", old_y + y);
+        } else if (element.tagName === "polygon" || element.tagName === "polyline") {
+          var points = get_points(element);
+          for (var i = 0; i < points.length; ++i) {
+            points[i].x = Number(points[i].x) + x;
+            points[i].y = Number(points[i].y) + y;
+          }
+          element.setAttribute("points", create_points_str(points));
+        } else {
+          alert("Cannot move this: " + element.tagName);
+        }
+      }
+
+      function drawing_copy_hover(event) {
+        var temporary_elements = get_temporary_elements();
+        if (temporary_elements.length === 0) {
+          // No click yet - Make hovered elemnts green:
+          set_class_for_hovered(event, "copy");
+        } else {
+          // Temporary elements exist - translate them:
+
+          var mouse_x = round_to_grid(event.offsetX);
+          var mouse_y = round_to_grid(event.offsetY);
+
+          var translate_x = mouse_x - translation.past.x;
+          var translate_y = mouse_y - translation.past.y;
+
+          for (let element of temporary_elements) {
+            translate_element(element, translate_x, translate_y);
+          }
+
+          translation.past.x = mouse_x;
+          translation.past.y = mouse_y;
+        }
+      }
+
+      function drawing_copy_mouse_down(event) {
+        var temporary_elements = get_temporary_elements();
+        if (temporary_elements.length === 0) {
+          // First click - create copies:
+          var elements = hovered_elements(event);
+
+          for (let element of elements) {
+            add_temporary_element(element.cloneNode(true));
+          }
+          var mouse_x = round_to_grid(event.offsetX);
+          var mouse_y = round_to_grid(event.offsetY);
+          translation = {};
+          translation.past = {};
+          translation.past.x = mouse_x;
+          translation.past.y = mouse_y;
+        } else {
+          // Second click - Place copies:
+          place_temporary_elements();
+          translation = null;
+          drawing_copy_hover(event);
+        }
+      }
+
+      // Wire tool functions:
 
       function get_points(polyline) {
         var points = polyline.getAttribute("points").split(" ");
@@ -613,66 +753,15 @@
         return results;
       }
 
-      function find_wires(x, y) {
-        var matches = [];
-        var drawing = document.getElementById("drawing");
-
-        for (let element of drawing.children) {
-          if (element.tagName === "polyline" || element.tagName === "polygon") {
-            var points = get_points(element);
-            for (let point of points) {
-              if (x === point.x && y === point.y) {
-                matches.push(element);
-                break; // Break out of points loop, continue to next element
-              }
-            }
-          }
+      function create_points_str(points) {
+        var string = "";
+        for (let point of points) {
+          string += "" + point.x + "," + point.y + " ";
         }
-        return matches;
+        return string.trim();
       }
 
-      function hovered_elements(event) {
-        // Returns a list of 0-1 elements that mouse is currently hovering over
-        // Can be expanded to add elements below the top element later
-        var elements = [];
-        var element = event.path[0];
-        if (element) {
-          if (
-            element.tagName === "circle" ||
-            element.tagName === "polyline" ||
-            element.tagName === "polygon"
-          ) {
-            elements.push(element);
-          } // Skip other tags; "line" is used for grid lines
-        }
-
-        return elements;
-      }
-
-      function drawing_delete_click(event) {
-        var elements = hovered_elements(event);
-
-        for (let element of elements) {
-          element.remove();
-        }
-      }
-
-      function drawing_delete_hover(event) {
-        var to_delete = hovered_elements(event);
-        var drawing = document.getElementById("drawing");
-
-        for (let element of drawing.children) {
-          if (to_delete.includes(element)) {
-            element.classList.add("delete");
-          } else {
-            element.classList.remove("delete");
-          }
-        }
-      }
-
-      // Wire tool:
-
-      function drawing_wire_click(x, y) {
+      function drawing_wire_mouse_down(x, y) {
         if (get_temporary_elements().length === 0) {
           wire_start(x, y);
         } else {
@@ -747,14 +836,6 @@
         place_temporary_elements();
       }
 
-      function create_points_str(points) {
-        var string = "";
-        for (let point of points) {
-          string += "" + point.x + "," + point.y + " ";
-        }
-        return string.trim();
-      }
-
       function create_wire(points, id, tag) {
         var line = document.createElementNS("http://www.w3.org/2000/svg", tag);
         line.setAttribute("points", create_points_str(points));
@@ -771,34 +852,34 @@
       <div class="sidebar_content">
         <h1 class="toolheader"><a href="https://github.com/olehermanse/ohm/">ohm</a></h1>
         <div id="toolbox" class="toolbox">
-          <div title="Add wire" class="tool" id="wire" onclick="wire_click();">
+          <div title="Add wire" class="tool" id="wire" onclick="toolbar('wire');">
             <div class="tool_icon" data-feather="edit-2">Wire</div>
           </div>
-          <div title="Add dot" class="tool" id="dot" onclick="dot_click();">
+          <div title="Add dot" class="tool" id="dot" onclick="toolbar('dot');">
             <div class="tool_icon" data-feather="circle">Dot</div>
           </div>
-          <div title="Add circle" class="tool" id="circle" onclick="circle_click();">
+          <div title="Add circle" class="tool" id="circle" onclick="toolbar('circle');">
             <div class="tool_icon" data-feather="circle">Circle</div>
           </div>
-          <div title="Add component" class="tool" id="component" onclick="component_click();">
+          <div title="Add component" class="tool" id="component" onclick="toolbar('component');">
             <div class="tool_icon" data-feather="cpu">Component</div>
           </div>
-          <div title="Add text" class="tool" id="text" onclick="text_click();">
+          <div title="Add text" class="tool" id="text" onclick="toolbar('text');">
             <div class="tool_icon" data-feather="type">Text</div>
           </div>
-          <div title="Copy" class="tool" id="copy" onclick="copy_click();">
+          <div title="Copy" class="tool" id="copy" onclick="toolbar('copy');">
             <div class="tool_icon" data-feather="copy">Copy</div>
           </div>
-          <div title="Delete object" class="tool" id="delete" onclick="delete_click();">
+          <div title="Delete object" class="tool" id="delete" onclick="toolbar('delete');">
             <div class="tool_icon" data-feather="x">Delete</div>
           </div>
-          <div title="Save" class="tool" id="save" onclick="save_click();">
+          <div title="Save" class="tool" id="save" onclick="toolbar('save');">
             <div class="tool_icon" data-feather="save">Save</div>
           </div>
-          <div title="Load" class="tool" id="load" onclick="load_click();">
+          <div title="Load" class="tool" id="load" onclick="toolbar('load');">
             <div class="tool_icon" data-feather="upload">Load</div>
           </div>
-          <div title="Share" class="tool" id="share" onclick="share_click();">
+          <div title="Share" class="tool" id="share" onclick="toolbar('share');">
             <div class="tool_icon" data-feather="external-link">Share</div>
           </div>
         </div>
