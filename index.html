@@ -122,11 +122,11 @@
         fill: red;
       }
 
-      .copy {
+      .original {
         stroke: green;
       }
 
-      circle#ohm_dot.copy {
+      circle#ohm_dot.original {
         fill: green;
       }
 
@@ -326,7 +326,7 @@
       function unselect_elements() {
         var drawing = document.getElementById("drawing");
         for (let element of drawing.children) {
-          element.classList.remove("copy");
+          element.classList.remove("original");
           element.classList.remove("delete");
           // tmp should be removed using place_temporary_elements() or clear_temporary_elements()
         }
@@ -728,7 +728,7 @@
       function drawing_copy_hover(event) {
         if (no_temporary_elements()) {
           // No click yet - Make hovered elements green:
-          set_class_for_hovered(event, "copy");
+          set_class_for_hovered(event, "original");
         } else {
           // Temporary elements exist - translate them:
           translate_elements(event, get_temporary_elements());
@@ -750,7 +750,7 @@
       function drawing_move_hover(event) {
         if (no_temporary_elements()) {
           // No click yet - Make hovered elements green:
-          set_class_for_hovered(event, "copy");
+          set_class_for_hovered(event, "original");
         } else {
           // Temporary elements exist - translate them:
           translate_elements(event, get_temporary_elements());
@@ -763,7 +763,7 @@
           create_duplicates(event);
         } else {
           // Second click - Remove originals and place temporary copies:
-          var originals = get_elements_by_class("copy");
+          var originals = get_elements_by_class("original");
           for (let original of originals) {
             original.remove();
           }
