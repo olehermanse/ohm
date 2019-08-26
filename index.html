@@ -714,7 +714,6 @@
 
       function create_duplicates(event) {
         var elements = hovered_elements(event);
-
         for (let element of elements) {
           add_temporary_element(element.cloneNode(true));
         }
@@ -728,7 +727,7 @@
 
       function drawing_copy_hover(event) {
         if (no_temporary_elements()) {
-          // No click yet - Make hovered elemnts green:
+          // No click yet - Make hovered elements green:
           set_class_for_hovered(event, "copy");
         } else {
           // Temporary elements exist - translate them:
@@ -749,11 +748,29 @@
       }
 
       function drawing_move_hover(event) {
-        drawing_copy_hover(event);
+        if (no_temporary_elements()) {
+          // No click yet - Make hovered elements green:
+          set_class_for_hovered(event, "copy");
+        } else {
+          // Temporary elements exist - translate them:
+          translate_elements(event, get_temporary_elements());
+        }
       }
 
       function drawing_move_mouse_down(event) {
-        drawing_copy_mouse_down(event);
+        if (no_temporary_elements()) {
+          // First click - create copies:
+          create_duplicates(event);
+        } else {
+          // Second click - Remove originals and place temporary copies:
+          var originals = get_elements_by_class("copy");
+          for (let original of originals) {
+            original.remove();
+          }
+          place_temporary_elements();
+          translation = null;
+          drawing_move_hover(event);
+        }
       }
 
       // Wire tool functions:
