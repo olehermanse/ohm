@@ -289,6 +289,10 @@
         return get_elements_by_class("tmp");
       }
 
+      function no_temporary_elements() {
+        return get_temporary_elements().length === 0;
+      }
+
       function clear_temporary_elements() {
         var temps = get_temporary_elements();
         for (let element of temps) {
@@ -562,7 +566,7 @@
       }
 
       function drawing_dot_hover(x, y) {
-        if (get_temporary_elements().length == 0) {
+        if (no_temporary_elements()) {
           create_temporary_dot(x, y);
         } else {
           update_temporary_dot(x, y);
@@ -643,7 +647,7 @@
       }
 
       function drawing_circle_hover(x, y) {
-        if (get_temporary_elements().length == 0) {
+        if (no_temporary_elements()) {
           create_temporary_circle(x, y);
         } else {
           move_temporary_circle(x, y);
@@ -651,7 +655,7 @@
       }
 
       function drawing_circle_drag(x, y) {
-        if (get_temporary_elements().length == 0) {
+        if (no_temporary_elements()) {
           return; // Mouse down event should create element, do nothing
         }
         scale_temporary_circle(x, y);
@@ -717,8 +721,7 @@
       }
 
       function drawing_copy_mouse_down(event) {
-        var temporary_elements = get_temporary_elements();
-        if (temporary_elements.length === 0) {
+        if (no_temporary_elements()) {
           // First click - create copies:
           var elements = hovered_elements(event);
 
