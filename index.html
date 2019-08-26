@@ -472,8 +472,6 @@
           save();
         } else if (icon_name == "load") {
           load();
-        } else if (icon_name == "share") {
-          share();
         } else {
           activate_tool(icon_name);
         }
@@ -516,10 +514,6 @@
 
       function load() {
         open_file_dialog(load_svg);
-      }
-
-      function share() {
-        alert("Share is not implemented (yet)!");
       }
 
       // Save to file (using browser download):
@@ -861,9 +855,6 @@
           <div title="Add circle" class="tool" id="circle" onclick="toolbar('circle');">
             <div class="tool_icon" data-feather="circle">Circle</div>
           </div>
-          <div title="Add component" class="tool" id="component" onclick="toolbar('component');">
-            <div class="tool_icon" data-feather="cpu">Component</div>
-          </div>
           <div title="Add text" class="tool" id="text" onclick="toolbar('text');">
             <div class="tool_icon" data-feather="type">Text</div>
           </div>
@@ -878,9 +869,6 @@
           </div>
           <div title="Load" class="tool" id="load" onclick="toolbar('load');">
             <div class="tool_icon" data-feather="upload">Load</div>
-          </div>
-          <div title="Share" class="tool" id="share" onclick="toolbar('share');">
-            <div class="tool_icon" data-feather="external-link">Share</div>
           </div>
         </div>
       </div>
