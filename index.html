@@ -387,6 +387,8 @@
           drawing_delete_mouse_down(event);
         } else if (active_tool === "copy") {
           drawing_copy_mouse_down(event);
+        } else if (active_tool === "move") {
+          drawing_move_mouse_down(event);
         }
       }
 
@@ -459,6 +461,9 @@
             break;
           case "e":
             activate_tool("delete");
+            break;
+          case "m":
+            activate_tool("move");
             break;
         }
         fake_mouse_move();
@@ -857,6 +862,9 @@
           </div>
           <div title="Add text" class="tool" id="text" onclick="toolbar('text');">
             <div class="tool_icon" data-feather="type">Text</div>
+          </div>
+          <div title="Move" class="tool" id="move" onclick="toolbar('move');">
+            <div class="tool_icon" data-feather="move">Move</div>
           </div>
           <div title="Copy" class="tool" id="copy" onclick="toolbar('copy');">
             <div class="tool_icon" data-feather="copy">Copy</div>
