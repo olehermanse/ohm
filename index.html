@@ -385,6 +385,8 @@
           drawing_wire_mouse_down(x, y);
         } else if (active_tool === "delete") {
           drawing_delete_mouse_down(event);
+        } else if (active_tool === "move") {
+          drawing_move_mouse_down(event);
         } else if (active_tool === "copy") {
           drawing_copy_mouse_down(event);
         } else if (active_tool === "move") {
@@ -413,6 +415,8 @@
           drawing_wire_hover(x, y);
         } else if (active_tool === "delete") {
           drawing_delete_hover(event);
+        } else if (active_tool === "move") {
+          drawing_move_hover(event);
         } else if (active_tool === "copy") {
           drawing_copy_hover(event);
         } else if (active_tool === "dot") {
@@ -733,6 +737,14 @@
           translation = null;
           drawing_copy_hover(event);
         }
+      }
+
+      function drawing_move_hover(event) {
+        drawing_copy_hover(event);
+      }
+
+      function drawing_move_mouse_down(event) {
+        drawing_copy_mouse_down(event);
       }
 
       // Wire tool functions:
