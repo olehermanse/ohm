@@ -114,6 +114,10 @@
         stroke: green;
       }
 
+      text#ohm_text.original {
+        fill: green;
+      }
+
       circle#ohm_dot.original {
         fill: green;
       }
@@ -124,6 +128,10 @@
 
       circle#ohm_dot.tmp {
         fill: blue;
+      }
+
+      #drawing > text {
+        cursor: default;
       }
 
       #drawing {
@@ -320,16 +328,22 @@
         }
       }
 
-      function hovered_elements(event) {
+      function hovered_elements(event, tag = null) {
         // Returns a list of 0-1 elements that mouse is currently hovering over
         // Can be expanded to add elements below the top element later
         var elements = [];
         var element = event.target;
         if (element) {
-          if (
+          if (tag) {
+            if (element.tagName === tag) {
+              // Only add if it's correct tag (For example add only <text>)
+              elements.push(element);
+            }
+          } else if (
             element.tagName === "circle" ||
             element.tagName === "polyline" ||
-            element.tagName === "polygon"
+            element.tagName === "polygon" ||
+            element.tagName === "text"
           ) {
             elements.push(element);
           } // Skip other tags; "line" is used for grid lines
@@ -338,8 +352,8 @@
         return elements;
       }
 
-      function set_class_for_hovered(event, class_name) {
-        var hovered = hovered_elements(event);
+      function set_class_for_hovered(event, class_name, tag = null) {
+        var hovered = hovered_elements(event, tag);
         var drawing = document.getElementById("drawing");
 
         for (let element of drawing.children) {
@@ -354,7 +368,12 @@
       // Mouse events:
 
       function update_mouse(event) {
-        mouse = { target: null, offsetX: event.offsetX, offsetY: event.offsetY };
+        mouse = {
+          target: null,
+          offsetX: event.offsetX,
+          offsetY: event.offsetY,
+          preventDefault: () => {}
+        };
       }
 
       function fake_mouse_move() {
@@ -364,6 +383,7 @@
       }
 
       function drawing_mouse_down(event) {
+        event.preventDefault();
         update_mouse(event);
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
@@ -383,10 +403,13 @@
           drawing_copy_mouse_down(event);
         } else if (active_tool === "move") {
           drawing_move_mouse_down(event);
+        } else if (active_tool === "text") {
+          drawing_text_mouse_down(event);
         }
       }
 
       function drawing_mouse_up(event) {
+        event.preventDefault();
         update_mouse(event);
         var x = "" + round_to_grid(event.offsetX);
         var y = "" + round_to_grid(event.offsetY);
@@ -399,6 +422,7 @@
       }
 
       function drawing_mouse_move(event) {
+        event.preventDefault();
         update_mouse(event);
         var mouse_pressed = event.buttons > 0;
         var x = "" + round_to_grid(event.offsetX);
@@ -411,6 +435,8 @@
           drawing_move_hover(event);
         } else if (active_tool === "copy") {
           drawing_copy_hover(event);
+        } else if (active_tool === "text") {
+          drawing_text_hover(event);
         } else if (active_tool === "dot") {
           drawing_dot_hover(x, y);
         } else if (active_tool === "circle" && !mouse_pressed) {
@@ -422,7 +448,57 @@
 
       // Keyboard events:
 
+      function text_add(key) {
+        var elements = get_temporary_elements();
+        for (let element of elements) {
+          if (element.innerHTML === "SAMPLE TEXT") {
+            // TODO, get rid of this hack:
+            element.innerHTML = "";
+          }
+          element.innerHTML += key;
+        }
+      }
+      function text_backspace() {
+        var elements = get_temporary_elements();
+        for (let element of elements) {
+          if (element.innerHTML === "SAMPLE TEXT") {
+            // TODO, get rid of this hack:
+            element.innerHTML = "";
+          } else {
+            var length = element.innerHTML.length;
+            if (length > 0) {
+              element.innerHTML = element.innerHTML.slice(0, length - 1);
+            }
+          }
+        }
+      }
+
+      function text_key_down(event) {
+        var key = event.key;
+        switch (key) {
+          case "Shift":
+          case "Control":
+          case "Meta":
+          case "Alt":
+            break; // Do nothing
+          case "Escape":
+          case "Enter":
+            place_temporary_elements();
+            break;
+          case "Backspace":
+            text_backspace();
+            break;
+          default:
+            text_add(key);
+            break;
+        }
+      }
+
       function key_down(event) {
+        if (active_tool === "text" && get_temporary_elements().length > 0) {
+          text_key_down(event);
+          return;
+        }
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
           return;
         }
@@ -663,7 +739,21 @@
         set_class_for_hovered(event, "delete");
       }
 
-      // Copy tool functions:
+      // Copy/Move tool functions:
+
+      function move_element(element, x, y) {
+        // Move an SVG element to an x,y coordinate
+        // Doesn't care about grid or previous position
+        // Only used for text, see translate_element for other elements
+        x = Number(x);
+        y = Number(y);
+        if (element.tagName === "text") {
+          element.setAttribute("x", x);
+          element.setAttribute("y", y);
+        } else {
+          alert("Cannot move this: " + element.tagName);
+        }
+      }
 
       function translate_element(element, x, y) {
         x = Number(x);
@@ -685,19 +775,23 @@
         }
       }
 
-      function translate_elements(event, temporary_elements) {
-        var mouse_x = round_to_grid(event.offsetX);
-        var mouse_y = round_to_grid(event.offsetY);
-
-        var translate_x = mouse_x - translation.past.x;
-        var translate_y = mouse_y - translation.past.y;
-
+      function move_elements(event, temporary_elements) {
         for (let element of temporary_elements) {
-          translate_element(element, translate_x, translate_y);
-        }
+          if (element.tagName === "text") {
+            move_element(element, event.offsetX, event.offsetY);
+          } else {
+            var mouse_x = round_to_grid(event.offsetX);
+            var mouse_y = round_to_grid(event.offsetY);
 
-        translation.past.x = mouse_x;
-        translation.past.y = mouse_y;
+            var translate_x = mouse_x - translation.past.x;
+            var translate_y = mouse_y - translation.past.y;
+
+            translate_element(element, translate_x, translate_y);
+
+            translation.past.x = mouse_x;
+            translation.past.y = mouse_y;
+          }
+        }
       }
 
       function create_duplicates(event) {
@@ -719,7 +813,7 @@
           set_class_for_hovered(event, "original");
         } else {
           // Temporary elements exist - translate them:
-          translate_elements(event, get_temporary_elements());
+          move_elements(event, get_temporary_elements());
         }
       }
 
@@ -741,7 +835,7 @@
           set_class_for_hovered(event, "original");
         } else {
           // Temporary elements exist - translate them:
-          translate_elements(event, get_temporary_elements());
+          move_elements(event, get_temporary_elements());
         }
       }
 
@@ -758,6 +852,46 @@
           place_temporary_elements();
           translation = null;
           drawing_move_hover(event);
+        }
+      }
+
+      // Text tool functions:
+
+      function create_temporary_text(x, y) {
+        var drawing = document.getElementById("drawing");
+        var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("id", "ohm_text");
+        text.setAttribute("x", x);
+        text.setAttribute("y", y);
+        text.setAttribute("text-anchor", "middle");
+        text.innerHTML = "SAMPLE TEXT";
+        add_temporary_element(text);
+      }
+
+      function drawing_text_mouse_down(event) {
+        if (no_temporary_elements()) {
+          // First click
+          var originals = get_elements_by_class("original");
+          if (originals.length == 0) {
+            create_temporary_text(event.offsetX, event.offsetY);
+          } else {
+            for (let original of originals) {
+              original.classList.add("tmp");
+              original.classList.remove("original");
+            }
+          }
+        } else {
+          place_temporary_elements();
+        }
+      }
+
+      function drawing_text_hover(event) {
+        if (no_temporary_elements()) {
+          // No click yet - Make hovered elements green:
+          set_class_for_hovered(event, "original", "text");
+        } else {
+          // Temporary elements exist - translate them:
+          move_elements(event, get_temporary_elements());
         }
       }
 
