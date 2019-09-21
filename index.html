@@ -122,11 +122,11 @@
         fill: blue;
       }
 
-      .tmp {
+      .to_create {
         stroke: green;
       }
 
-      circle.fill.tmp {
+      circle.fill.to_create {
         fill: green;
       }
 
@@ -284,14 +284,14 @@
       }
 
       function clear_temporary_elements() {
-        const temps = get_elements("tmp");
+        const temps = get_elements("to_create");
         for (const element of temps) {
           element.remove();
         }
       }
 
       function add_temporary_element(element) {
-        element.classList.add("tmp");
+        element.classList.add("to_create");
         const drawing = document.getElementById("drawing");
 
         if (element.tagName === "circle") {
@@ -305,9 +305,9 @@
       }
 
       function place_temporary_elements() {
-        const temps = get_elements("tmp");
+        const temps = get_elements("to_create");
         for (const element of temps) {
-          element.classList.remove("tmp");
+          element.classList.remove("to_create");
         }
       }
 
@@ -318,7 +318,7 @@
         for (const element of drawing.children) {
           element.classList.remove("original");
           element.classList.remove("to_delete");
-          // tmp should be removed using place_temporary_elements() or clear_temporary_elements()
+          // to_create should be removed using place_temporary_elements() or clear_temporary_elements()
         }
       }
 
@@ -443,7 +443,7 @@
       // Keyboard events:
 
       function text_add(key) {
-        const elements = get_elements("tmp");
+        const elements = get_elements("to_create");
         for (const element of elements) {
           if (element.innerHTML === "SAMPLE TEXT") {
             // TODO, get rid of this hack:
@@ -453,7 +453,7 @@
         }
       }
       function text_backspace() {
-        const elements = get_elements("tmp");
+        const elements = get_elements("to_create");
         for (const element of elements) {
           if (element.innerHTML === "SAMPLE TEXT") {
             // TODO, get rid of this hack:
@@ -489,7 +489,7 @@
       }
 
       function key_down(event) {
-        if (active_tool === "text" && get_elements("tmp").length > 0) {
+        if (active_tool === "text" && get_elements("to_create").length > 0) {
           text_key_down(event);
           return;
         }
@@ -616,7 +616,7 @@
       }
 
       function update_temporary_dot(x, y) {
-        const temporary_elements = get_elements("tmp");
+        const temporary_elements = get_elements("to_create");
         console.assert(temporary_elements.length == 1, temporary_elements);
         const dot = temporary_elements[0];
         dot.setAttribute("cx", x);
@@ -624,7 +624,7 @@
       }
 
       function drawing_dot_hover(x, y) {
-        if (no_elements("tmp")) {
+        if (no_elements("to_create")) {
           create_temporary_dot(x, y);
         } else {
           update_temporary_dot(x, y);
@@ -641,7 +641,7 @@
           const cy = element.getAttribute("cy");
           const r = element.getAttribute("r");
           const classes = element.classList;
-          if (!classes.contains("tmp") && cx === x && cy === y && r === "10") {
+          if (!classes.contains("to_create") && cx === x && cy === y && r === "10") {
             return element;
           }
         }
@@ -682,7 +682,7 @@
       }
 
       function move_temporary_circle(x, y) {
-        const temporary_elements = get_elements("tmp");
+        const temporary_elements = get_elements("to_create");
         console.assert(temporary_elements.length == 1, temporary_elements);
         const circle = temporary_elements[0];
         circle.setAttribute("cx", x);
@@ -690,7 +690,7 @@
       }
 
       function scale_temporary_circle(x, y) {
-        const temporary_elements = get_elements("tmp");
+        const temporary_elements = get_elements("to_create");
         console.assert(temporary_elements.length == 1, temporary_elements);
         const circle = temporary_elements[0];
         const cx = circle.getAttribute("cx");
@@ -705,7 +705,7 @@
       }
 
       function drawing_circle_hover(x, y) {
-        if (no_elements("tmp")) {
+        if (no_elements("to_create")) {
           create_temporary_circle(x, y);
         } else {
           move_temporary_circle(x, y);
@@ -713,7 +713,7 @@
       }
 
       function drawing_circle_drag(x, y) {
-        if (no_elements("tmp")) {
+        if (no_elements("to_create")) {
           return; // Mouse down event should create element, do nothing
         }
         scale_temporary_circle(x, y);
@@ -802,17 +802,17 @@
       }
 
       function drawing_copy_hover(event) {
-        if (no_elements("tmp")) {
+        if (no_elements("to_create")) {
           // No click yet - Make hovered elements green:
           set_class_for_hovered(event, "original");
         } else {
           // Temporary elements exist - translate them:
-          move_elements(event, get_elements("tmp"));
+          move_elements(event, get_elements("to_create"));
         }
       }
 
       function drawing_copy_mouse_down(event) {
-        if (no_elements("tmp")) {
+        if (no_elements("to_create")) {
           // First click - create copies:
           create_duplicates(event);
         } else {
@@ -824,17 +824,17 @@
       }
 
       function drawing_move_hover(event) {
-        if (no_elements("tmp")) {
+        if (no_elements("to_create")) {
           // No click yet - Make hovered elements green:
           set_class_for_hovered(event, "original");
         } else {
           // Temporary elements exist - translate them:
-          move_elements(event, get_elements("tmp"));
+          move_elements(event, get_elements("to_create"));
         }
       }
 
       function drawing_move_mouse_down(event) {
-        if (no_elements("tmp")) {
+        if (no_elements("to_create")) {
           // First click - create copies:
           create_duplicates(event);
         } else {
@@ -862,14 +862,14 @@
       }
 
       function drawing_text_mouse_down(event) {
-        if (no_elements("tmp")) {
+        if (no_elements("to_create")) {
           // First click
           const originals = get_elements("original");
           if (originals.length == 0) {
             create_temporary_text(event.offsetX, event.offsetY);
           } else {
             for (const original of originals) {
-              original.classList.add("tmp");
+              original.classList.add("to_create");
               original.classList.remove("original");
             }
           }
@@ -879,12 +879,12 @@
       }
 
       function drawing_text_hover(event) {
-        if (no_elements("tmp")) {
+        if (no_elements("to_create")) {
           // No click yet - Make hovered elements green:
           set_class_for_hovered(event, "original", "text");
         } else {
           // Temporary elements exist - translate them:
-          move_elements(event, get_elements("tmp"));
+          move_elements(event, get_elements("to_create"));
         }
       }
 
@@ -914,12 +914,12 @@
       }
 
       function drawing_wire_mouse_down(x, y) {
-        if (get_elements("tmp").length === 0) {
+        if (get_elements("to_create").length === 0) {
           wire_start(x, y);
         } else {
-          const temporary_elements = get_elements("tmp");
+          const temporary_elements = get_elements("to_create");
           console.assert(temporary_elements.length == 1, temporary_elements);
-          const wire = get_elements("tmp")[0];
+          const wire = get_elements("to_create")[0];
           const points = get_points(wire);
 
           // Get the first point and last point we clicked:
@@ -936,10 +936,10 @@
       }
 
       function drawing_wire_hover(x, y) {
-        if (get_elements("tmp").length === 0) {
+        if (get_elements("to_create").length === 0) {
           return;
         }
-        const wire = get_elements("tmp")[0];
+        const wire = get_elements("to_create")[0];
         const points = get_points(wire);
         points[points.length - 1] = {
           x: x,
@@ -978,7 +978,7 @@
           x: x,
           y: y
         };
-        const wire = get_elements("tmp")[0];
+        const wire = get_elements("to_create")[0];
         const points = get_points(wire);
         points.push(point);
         wire.setAttribute("points", create_points_str(points));
