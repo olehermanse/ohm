@@ -279,16 +279,12 @@
         return drawing.getElementsByClassName(class_name);
       }
 
-      function get_temporary_elements() {
-        return get_elements("tmp");
-      }
-
       function no_temporary_elements() {
-        return get_temporary_elements().length === 0;
+        return get_elements("tmp").length === 0;
       }
 
       function clear_temporary_elements() {
-        const temps = get_temporary_elements();
+        const temps = get_elements("tmp");
         for (const element of temps) {
           element.remove();
         }
@@ -309,7 +305,7 @@
       }
 
       function place_temporary_elements() {
-        const temps = get_temporary_elements();
+        const temps = get_elements("tmp");
         for (const element of temps) {
           element.classList.remove("tmp");
         }
@@ -447,7 +443,7 @@
       // Keyboard events:
 
       function text_add(key) {
-        const elements = get_temporary_elements();
+        const elements = get_elements("tmp");
         for (const element of elements) {
           if (element.innerHTML === "SAMPLE TEXT") {
             // TODO, get rid of this hack:
@@ -457,7 +453,7 @@
         }
       }
       function text_backspace() {
-        const elements = get_temporary_elements();
+        const elements = get_elements("tmp");
         for (const element of elements) {
           if (element.innerHTML === "SAMPLE TEXT") {
             // TODO, get rid of this hack:
@@ -493,7 +489,7 @@
       }
 
       function key_down(event) {
-        if (active_tool === "text" && get_temporary_elements().length > 0) {
+        if (active_tool === "text" && get_elements("tmp").length > 0) {
           text_key_down(event);
           return;
         }
@@ -620,7 +616,7 @@
       }
 
       function update_temporary_dot(x, y) {
-        const temporary_elements = get_temporary_elements();
+        const temporary_elements = get_elements("tmp");
         console.assert(temporary_elements.length == 1, temporary_elements);
         const dot = temporary_elements[0];
         dot.setAttribute("cx", x);
@@ -686,7 +682,7 @@
       }
 
       function move_temporary_circle(x, y) {
-        const temporary_elements = get_temporary_elements();
+        const temporary_elements = get_elements("tmp");
         console.assert(temporary_elements.length == 1, temporary_elements);
         const circle = temporary_elements[0];
         circle.setAttribute("cx", x);
@@ -694,7 +690,7 @@
       }
 
       function scale_temporary_circle(x, y) {
-        const temporary_elements = get_temporary_elements();
+        const temporary_elements = get_elements("tmp");
         console.assert(temporary_elements.length == 1, temporary_elements);
         const circle = temporary_elements[0];
         const cx = circle.getAttribute("cx");
@@ -811,7 +807,7 @@
           set_class_for_hovered(event, "original");
         } else {
           // Temporary elements exist - translate them:
-          move_elements(event, get_temporary_elements());
+          move_elements(event, get_elements("tmp"));
         }
       }
 
@@ -833,7 +829,7 @@
           set_class_for_hovered(event, "original");
         } else {
           // Temporary elements exist - translate them:
-          move_elements(event, get_temporary_elements());
+          move_elements(event, get_elements("tmp"));
         }
       }
 
@@ -888,7 +884,7 @@
           set_class_for_hovered(event, "original", "text");
         } else {
           // Temporary elements exist - translate them:
-          move_elements(event, get_temporary_elements());
+          move_elements(event, get_elements("tmp"));
         }
       }
 
@@ -918,12 +914,12 @@
       }
 
       function drawing_wire_mouse_down(x, y) {
-        if (get_temporary_elements().length === 0) {
+        if (get_elements("tmp").length === 0) {
           wire_start(x, y);
         } else {
-          const temporary_elements = get_temporary_elements();
+          const temporary_elements = get_elements("tmp");
           console.assert(temporary_elements.length == 1, temporary_elements);
-          const wire = get_temporary_elements()[0];
+          const wire = get_elements("tmp")[0];
           const points = get_points(wire);
 
           // Get the first point and last point we clicked:
@@ -940,10 +936,10 @@
       }
 
       function drawing_wire_hover(x, y) {
-        if (get_temporary_elements().length === 0) {
+        if (get_elements("tmp").length === 0) {
           return;
         }
-        const wire = get_temporary_elements()[0];
+        const wire = get_elements("tmp")[0];
         const points = get_points(wire);
         points[points.length - 1] = {
           x: x,
@@ -982,7 +978,7 @@
           x: x,
           y: y
         };
-        const wire = get_temporary_elements()[0];
+        const wire = get_elements("tmp")[0];
         const points = get_points(wire);
         points.push(point);
         wire.setAttribute("points", create_points_str(points));
