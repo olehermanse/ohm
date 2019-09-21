@@ -153,16 +153,16 @@
     </style>
     <script>
       // Global state:
-      var active_tool = "wire";
-      var GRID_SIZE = 60;
-      var grid_size = GRID_SIZE;
-      var translation = null;
-      var mouse = null;
+      let active_tool = "wire";
+      const GRID_SIZE = 60;
+      let grid_size = GRID_SIZE;
+      let translation = null;
+      let mouse = null;
 
       function init_ohm() {
         document.onkeydown = key_down;
 
-        var p = document.getElementById("drawing");
+        const p = document.getElementById("drawing");
         p.onmousedown = drawing_mouse_down;
         p.onmouseup = drawing_mouse_up;
         p.onmousemove = drawing_mouse_move;
@@ -174,8 +174,8 @@
         clear_temporary_elements();
         unselect_elements();
         active_tool = new_state;
-        var toolbox = document.getElementById("toolbox");
-        for (let tool of toolbox.children) {
+        const toolbox = document.getElementById("toolbox");
+        for (const tool of toolbox.children) {
           if (tool.id === active_tool) {
             tool.classList.add("active_tool");
           } else {
@@ -198,19 +198,19 @@
       }
 
       function init_grid() {
-        var drawing = document.getElementById("drawing");
-        var svg_width = Number(drawing.getAttribute("width"));
-        var svg_height = Number(drawing.getAttribute("height"));
-        for (var x = grid_size; x < svg_width; x += grid_size) {
+        const drawing = document.getElementById("drawing");
+        const svg_width = Number(drawing.getAttribute("width"));
+        const svg_height = Number(drawing.getAttribute("height"));
+        for (let x = grid_size; x < svg_width; x += grid_size) {
           create_grid_line(x, 0, x, svg_width, get_grid_flavor(x));
         }
-        for (var y = grid_size; y < svg_height; y += grid_size) {
+        for (let y = grid_size; y < svg_height; y += grid_size) {
           create_grid_line(0, y, svg_height, y, get_grid_flavor(y));
         }
       }
 
       function num_to_string(num) {
-        var str = "" + num;
+        let str = "" + num;
         if (!str.includes(".")) {
           return str;
         }
@@ -222,8 +222,8 @@
       }
 
       function create_grid_line(x1, y1, x2, y2, flavor) {
-        var drawing = document.getElementById("drawing");
-        var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        const drawing = document.getElementById("drawing");
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
         line.setAttribute("x1", num_to_string(x1));
         line.setAttribute("y1", num_to_string(y1));
         line.setAttribute("x2", num_to_string(x2));
@@ -241,15 +241,15 @@
       }
 
       function refresh_grid_lines() {
-        var drawing = document.getElementById("drawing");
+        const drawing = document.getElementById("drawing");
         remove_grid_lines(drawing);
         init_grid();
       }
 
       function resize(operation) {
-        var drawing = document.getElementById("drawing");
-        var svg_width = Number(drawing.getAttribute("width"));
-        var svg_height = Number(drawing.getAttribute("height"));
+        const drawing = document.getElementById("drawing");
+        let svg_width = Number(drawing.getAttribute("width"));
+        let svg_height = Number(drawing.getAttribute("height"));
         if (operation === "+") {
           svg_width += grid_size;
           svg_height += grid_size;
@@ -266,7 +266,7 @@
       }
 
       function subdivide_grid(operation) {
-        var drawing = document.getElementById("drawing");
+        const drawing = document.getElementById("drawing");
         grid_size = GRID_SIZE / operation;
         refresh_grid_lines();
       }
@@ -275,7 +275,7 @@
       // (Selecting, adding, removing)
 
       function get_elements_by_class(class_name) {
-        var drawing = document.getElementById("drawing");
+        const drawing = document.getElementById("drawing");
         return drawing.getElementsByClassName(class_name);
       }
 
@@ -288,29 +288,29 @@
       }
 
       function clear_temporary_elements() {
-        var temps = get_temporary_elements();
-        for (let element of temps) {
+        const temps = get_temporary_elements();
+        for (const element of temps) {
           element.remove();
         }
       }
 
       function add_temporary_element(element) {
         element.classList.add("tmp");
-        var drawing = document.getElementById("drawing");
+        const drawing = document.getElementById("drawing");
 
         if (element.tagName === "circle") {
           // Circles and dots are appended at the end:
           drawing.appendChild(element);
         } else {
           // Others are inserted before the circles / dots:
-          var firstCircle = drawing.getElementsByTagName("circle")[0];
+          const firstCircle = drawing.getElementsByTagName("circle")[0];
           drawing.insertBefore(element, firstCircle);
         }
       }
 
       function place_temporary_elements() {
-        var temps = get_temporary_elements();
-        for (let element of temps) {
+        const temps = get_temporary_elements();
+        for (const element of temps) {
           element.classList.remove("tmp");
         }
       }
@@ -318,8 +318,8 @@
       // Copy and delete tools select elements inside svg using classes (coloring them)
       // This function removes those classes, for example when switching tool
       function unselect_elements() {
-        var drawing = document.getElementById("drawing");
-        for (let element of drawing.children) {
+        const drawing = document.getElementById("drawing");
+        for (const element of drawing.children) {
           element.classList.remove("original");
           element.classList.remove("to_delete");
           // tmp should be removed using place_temporary_elements() or clear_temporary_elements()
@@ -329,8 +329,8 @@
       function hovered_elements(event, tag = null) {
         // Returns a list of 0-1 elements that mouse is currently hovering over
         // Can be expanded to add elements below the top element later
-        var elements = [];
-        var element = event.target;
+        const elements = [];
+        const element = event.target;
         if (element) {
           if (tag) {
             if (element.tagName === tag) {
@@ -351,10 +351,10 @@
       }
 
       function set_class_for_hovered(event, class_name, tag = null) {
-        var hovered = hovered_elements(event, tag);
-        var drawing = document.getElementById("drawing");
+        const hovered = hovered_elements(event, tag);
+        const drawing = document.getElementById("drawing");
 
-        for (let element of drawing.children) {
+        for (const element of drawing.children) {
           if (hovered.includes(element)) {
             element.classList.add(class_name);
           } else {
@@ -409,8 +409,8 @@
       function drawing_mouse_up(event) {
         event.preventDefault();
         update_mouse(event);
-        var x = "" + round_to_grid(event.offsetX);
-        var y = "" + round_to_grid(event.offsetY);
+        const x = "" + round_to_grid(event.offsetX);
+        const y = "" + round_to_grid(event.offsetY);
         if (active_tool === "circle") {
           place_temporary_elements();
 
@@ -422,9 +422,9 @@
       function drawing_mouse_move(event) {
         event.preventDefault();
         update_mouse(event);
-        var mouse_pressed = event.buttons > 0;
-        var x = "" + round_to_grid(event.offsetX);
-        var y = "" + round_to_grid(event.offsetY);
+        const mouse_pressed = event.buttons > 0;
+        const x = "" + round_to_grid(event.offsetX);
+        const y = "" + round_to_grid(event.offsetY);
         if (active_tool === "wire") {
           drawing_wire_hover(x, y);
         } else if (active_tool === "delete") {
@@ -447,8 +447,8 @@
       // Keyboard events:
 
       function text_add(key) {
-        var elements = get_temporary_elements();
-        for (let element of elements) {
+        const elements = get_temporary_elements();
+        for (const element of elements) {
           if (element.innerHTML === "SAMPLE TEXT") {
             // TODO, get rid of this hack:
             element.innerHTML = "";
@@ -457,13 +457,13 @@
         }
       }
       function text_backspace() {
-        var elements = get_temporary_elements();
-        for (let element of elements) {
+        const elements = get_temporary_elements();
+        for (const element of elements) {
           if (element.innerHTML === "SAMPLE TEXT") {
             // TODO, get rid of this hack:
             element.innerHTML = "";
           } else {
-            var length = element.innerHTML.length;
+            const length = element.innerHTML.length;
             if (length > 0) {
               element.innerHTML = element.innerHTML.slice(0, length - 1);
             }
@@ -472,7 +472,7 @@
       }
 
       function text_key_down(event) {
-        var key = event.key;
+        const key = event.key;
         switch (key) {
           case "Shift":
           case "Control":
@@ -500,7 +500,7 @@
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
           return;
         }
-        var key = event.key;
+        const key = event.key;
         switch (key) {
           case "+":
           case "-":
@@ -554,33 +554,33 @@
 
       function save() {
         clear_temporary_elements();
-        var copy = document.getElementById("drawing").cloneNode(true);
+        const copy = document.getElementById("drawing").cloneNode(true);
         remove_grid_lines(copy);
-        for (let element of copy.children) {
+        for (const element of copy.children) {
           element.removeAttribute("id");
           element.removeAttribute("class");
         }
         copy.removeAttribute("class");
-        var svg_text = copy.outerHTML;
+        const svg_text = copy.outerHTML;
         download("schematic.svg", svg_text);
       }
 
       function load_svg(content) {
-        var drawing = document.getElementById("drawing");
+        const drawing = document.getElementById("drawing");
         drawing.outerHTML = content;
         init_ohm();
       }
 
       // https://stackoverflow.com/questions/16215771/
       function open_file_dialog(on_complete) {
-        var input = document.createElement("input");
+        const input = document.createElement("input");
         input.type = "file";
         input.onchange = e => {
-          var file = e.target.files[0];
-          var reader = new FileReader();
+          const file = e.target.files[0];
+          const reader = new FileReader();
           reader.readAsText(file, "UTF-8");
           reader.onload = readerEvent => {
-            var content = readerEvent.target.result;
+            const content = readerEvent.target.result;
             on_complete(content);
           };
         };
@@ -594,7 +594,7 @@
       // Save to file (using browser download):
       // From: https://gist.github.com/liabru/11263260#gistcomment-2894088
       function download(filename, text) {
-        var element = document.createElement("a");
+        const element = document.createElement("a");
         element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
         element.setAttribute("download", filename);
 
@@ -609,8 +609,8 @@
       // Dot tool functions:
 
       function create_temporary_dot(x, y) {
-        var drawing = document.getElementById("drawing");
-        var dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        const drawing = document.getElementById("drawing");
+        const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         dot.classList.add("fill");
         dot.setAttribute("cx", x);
         dot.setAttribute("cy", y);
@@ -620,9 +620,9 @@
       }
 
       function update_temporary_dot(x, y) {
-        var temporary_elements = get_temporary_elements();
+        const temporary_elements = get_temporary_elements();
         console.assert(temporary_elements.length == 1, temporary_elements);
-        var dot = temporary_elements[0];
+        const dot = temporary_elements[0];
         dot.setAttribute("cx", x);
         dot.setAttribute("cy", y);
       }
@@ -638,12 +638,12 @@
       // Circle & pin tool functions:
 
       function find_circle(x, y) {
-        var drawing = document.getElementById("drawing");
+        const drawing = document.getElementById("drawing");
 
-        for (let element of drawing.getElementsByTagName("circle")) {
-          var cx = element.getAttribute("cx");
-          var cy = element.getAttribute("cy");
-          var classes = element.classList;
+        for (const element of drawing.getElementsByTagName("circle")) {
+          const cx = element.getAttribute("cx");
+          const cy = element.getAttribute("cy");
+          const classes = element.classList;
           if (!classes.contains("tmp") && cx === x && cy === y) {
             return element;
           }
@@ -676,8 +676,8 @@
       }
 
       function create_temporary_circle(x, y) {
-        var drawing = document.getElementById("drawing");
-        var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        const drawing = document.getElementById("drawing");
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
         set_circle_small(circle);
@@ -685,21 +685,21 @@
       }
 
       function move_temporary_circle(x, y) {
-        var temporary_elements = get_temporary_elements();
+        const temporary_elements = get_temporary_elements();
         console.assert(temporary_elements.length == 1, temporary_elements);
-        var circle = temporary_elements[0];
+        const circle = temporary_elements[0];
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
       }
 
       function scale_temporary_circle(x, y) {
-        var temporary_elements = get_temporary_elements();
+        const temporary_elements = get_temporary_elements();
         console.assert(temporary_elements.length == 1, temporary_elements);
-        var circle = temporary_elements[0];
-        var cx = circle.getAttribute("cx");
-        var cy = circle.getAttribute("cy");
-        var distance_squared = Math.pow(x - cx, 2) + Math.pow(y - cy, 2);
-        var distance = Math.sqrt(distance_squared);
+        const circle = temporary_elements[0];
+        const cx = circle.getAttribute("cx");
+        const cy = circle.getAttribute("cy");
+        const distance_squared = Math.pow(x - cx, 2) + Math.pow(y - cy, 2);
+        const distance = Math.sqrt(distance_squared);
         if (distance < grid_size) {
           set_circle_small(circle);
           return;
@@ -725,9 +725,9 @@
       // Delete tool functions:
 
       function drawing_delete_mouse_down(event) {
-        var elements = hovered_elements(event);
+        const elements = hovered_elements(event);
 
-        for (let element of elements) {
+        for (const element of elements) {
           element.remove();
         }
       }
@@ -756,13 +756,13 @@
         x = Number(x);
         y = Number(y);
         if (element.tagName === "circle") {
-          var old_x = Number(element.getAttribute("cx"));
-          var old_y = Number(element.getAttribute("cy"));
+          const old_x = Number(element.getAttribute("cx"));
+          const old_y = Number(element.getAttribute("cy"));
           element.setAttribute("cx", old_x + x);
           element.setAttribute("cy", old_y + y);
         } else if (element.tagName === "polygon" || element.tagName === "polyline") {
-          var points = get_points(element);
-          for (var i = 0; i < points.length; ++i) {
+          const points = get_points(element);
+          for (let i = 0; i < points.length; ++i) {
             points[i].x = Number(points[i].x) + x;
             points[i].y = Number(points[i].y) + y;
           }
@@ -773,15 +773,15 @@
       }
 
       function move_elements(event, temporary_elements) {
-        for (let element of temporary_elements) {
+        for (const element of temporary_elements) {
           if (element.tagName === "text") {
             move_element(element, event.offsetX, event.offsetY);
           } else {
-            var mouse_x = round_to_grid(event.offsetX);
-            var mouse_y = round_to_grid(event.offsetY);
+            const mouse_x = round_to_grid(event.offsetX);
+            const mouse_y = round_to_grid(event.offsetY);
 
-            var translate_x = mouse_x - translation.past.x;
-            var translate_y = mouse_y - translation.past.y;
+            const translate_x = mouse_x - translation.past.x;
+            const translate_y = mouse_y - translation.past.y;
 
             translate_element(element, translate_x, translate_y);
 
@@ -792,12 +792,12 @@
       }
 
       function create_duplicates(event) {
-        var elements = hovered_elements(event);
-        for (let element of elements) {
+        const elements = hovered_elements(event);
+        for (const element of elements) {
           add_temporary_element(element.cloneNode(true));
         }
-        var mouse_x = round_to_grid(event.offsetX);
-        var mouse_y = round_to_grid(event.offsetY);
+        const mouse_x = round_to_grid(event.offsetX);
+        const mouse_y = round_to_grid(event.offsetY);
         translation = {};
         translation.past = {};
         translation.past.x = mouse_x;
@@ -842,8 +842,8 @@
           create_duplicates(event);
         } else {
           // Second click - Remove originals and place temporary copies:
-          var originals = get_elements_by_class("original");
-          for (let original of originals) {
+          const originals = get_elements_by_class("original");
+          for (const original of originals) {
             original.remove();
           }
           place_temporary_elements();
@@ -855,8 +855,8 @@
       // Text tool functions:
 
       function create_temporary_text(x, y) {
-        var drawing = document.getElementById("drawing");
-        var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        const drawing = document.getElementById("drawing");
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
         text.setAttribute("x", x);
         text.setAttribute("y", y);
         text.setAttribute("text-anchor", "middle");
@@ -867,11 +867,11 @@
       function drawing_text_mouse_down(event) {
         if (no_temporary_elements()) {
           // First click
-          var originals = get_elements_by_class("original");
+          const originals = get_elements_by_class("original");
           if (originals.length == 0) {
             create_temporary_text(event.offsetX, event.offsetY);
           } else {
-            for (let original of originals) {
+            for (const original of originals) {
               original.classList.add("tmp");
               original.classList.remove("original");
             }
@@ -894,12 +894,12 @@
       // Wire tool functions:
 
       function get_points(polyline) {
-        var points = polyline.getAttribute("points").split(" ");
-        var results = [];
-        for (let point of points) {
-          var coordinates = point.split(",");
-          var x = coordinates[0];
-          var y = coordinates[1];
+        const points = polyline.getAttribute("points").split(" ");
+        const results = [];
+        for (const point of points) {
+          const coordinates = point.split(",");
+          const x = coordinates[0];
+          const y = coordinates[1];
           results.push({
             x: x,
             y: y
@@ -909,8 +909,8 @@
       }
 
       function create_points_str(points) {
-        var string = "";
-        for (let point of points) {
+        let string = "";
+        for (const point of points) {
           string += "" + point.x + "," + point.y + " ";
         }
         return string.trim();
@@ -920,14 +920,14 @@
         if (get_temporary_elements().length === 0) {
           wire_start(x, y);
         } else {
-          var temporary_elements = get_temporary_elements();
+          const temporary_elements = get_temporary_elements();
           console.assert(temporary_elements.length == 1, temporary_elements);
-          var wire = get_temporary_elements()[0];
-          var points = get_points(wire);
+          const wire = get_temporary_elements()[0];
+          const points = get_points(wire);
 
           // Get the first point and last point we clicked:
-          var first = points[0];
-          var last = points[points.length - 2]; // - 2 because - 1 is the hovering point
+          const first = points[0];
+          const last = points[points.length - 2]; // - 2 because - 1 is the hovering point
 
           // End the wire if you connected with the first, or clicked the same point twice:
           if ((first.x === x && first.y === y) || (last.x === x && last.y === y)) {
@@ -942,14 +942,14 @@
         if (get_temporary_elements().length === 0) {
           return;
         }
-        var wire = get_temporary_elements()[0];
-        var points = get_points(wire);
+        const wire = get_temporary_elements()[0];
+        const points = get_points(wire);
         points[points.length - 1] = {
           x: x,
           y: y
         };
         wire.setAttribute("points", create_points_str(points));
-        var replace_tag = null;
+        let replace_tag = null;
         if (points[0].x === x && points[0].y === y) {
           if (wire.tagName === "polyline") {
             replace_tag = "polygon";
@@ -960,29 +960,29 @@
           }
         }
         if (replace_tag) {
-          var new_wire = create_wire(points, "", replace_tag);
+          const new_wire = create_wire(points, "", replace_tag);
           add_temporary_element(new_wire);
           wire.remove();
         }
       }
 
       function wire_start(x, y) {
-        var point = {
+        const point = {
           x: x,
           y: y
         };
-        var points = [point, point];
-        var polyline = create_wire(points, "", "polyline");
+        const points = [point, point];
+        const polyline = create_wire(points, "", "polyline");
         add_temporary_element(polyline);
       }
 
       function wire_continue(x, y) {
-        var point = {
+        const point = {
           x: x,
           y: y
         };
-        var wire = get_temporary_elements()[0];
-        var points = get_points(wire);
+        const wire = get_temporary_elements()[0];
+        const points = get_points(wire);
         points.push(point);
         wire.setAttribute("points", create_points_str(points));
       }
@@ -992,7 +992,7 @@
       }
 
       function create_wire(points, id, tag) {
-        var line = document.createElementNS("http://www.w3.org/2000/svg", tag);
+        const line = document.createElementNS("http://www.w3.org/2000/svg", tag);
         line.setAttribute("points", create_points_str(points));
         line.setAttribute("id", id);
         line.setAttribute("stroke-width", "8");
@@ -1043,8 +1043,8 @@
     feather.replace();
 
     function replace_dot() {
-      var wrapper = document.getElementById("dot");
-      for (let element of wrapper.children) {
+      const wrapper = document.getElementById("dot");
+      for (const element of wrapper.children) {
         if (element.tagName === "svg") {
           element.setAttribute("fill", "currentColor");
           element.setAttribute("stroke", "none");
@@ -1053,8 +1053,8 @@
     }
 
     function replace_circle() {
-      var wrapper = document.getElementById("circle");
-      for (let element of wrapper.children) {
+      const wrapper = document.getElementById("circle");
+      for (const element of wrapper.children) {
         if (element.tagName === "svg") {
           element.setAttribute("stroke", "currentColor");
         }
