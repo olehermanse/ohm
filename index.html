@@ -274,13 +274,13 @@
       // General functions for manipulating the svg drawing:
       // (Selecting, adding, removing)
 
-      function get_elements_by_class(class_name) {
+      function get_elements(class_name) {
         const drawing = document.getElementById("drawing");
         return drawing.getElementsByClassName(class_name);
       }
 
       function get_temporary_elements() {
-        return get_elements_by_class("tmp");
+        return get_elements("tmp");
       }
 
       function no_temporary_elements() {
@@ -843,7 +843,7 @@
           create_duplicates(event);
         } else {
           // Second click - Remove originals and place temporary copies:
-          const originals = get_elements_by_class("original");
+          const originals = get_elements("original");
           for (const original of originals) {
             original.remove();
           }
@@ -868,7 +868,7 @@
       function drawing_text_mouse_down(event) {
         if (no_temporary_elements()) {
           // First click
-          const originals = get_elements_by_class("original");
+          const originals = get_elements("original");
           if (originals.length == 0) {
             create_temporary_text(event.offsetX, event.offsetY);
           } else {
