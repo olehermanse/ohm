@@ -141,12 +141,12 @@
         margin: 1em;
       }
 
-      #grid_line_major {
+      .grid_line.major {
         stroke: rgb(200, 200, 200);
         stroke-width: 0.4;
       }
 
-      #grid_line_minor {
+      .grid_line.minor {
         stroke: rgb(200, 200, 200);
         stroke-width: 0.2;
       }
@@ -228,18 +228,16 @@
         line.setAttribute("y1", num_to_string(y1));
         line.setAttribute("x2", num_to_string(x2));
         line.setAttribute("y2", num_to_string(y2));
-        line.setAttribute("id", "grid_line_" + flavor);
+        line.classList.add("grid_line");
+        line.classList.add(flavor);
 
         drawing.prepend(line);
       }
 
       function remove_grid_lines(drawing) {
-        while (drawing.getElementById("grid_line_major")) {
-          drawing.getElementById("grid_line_major").remove();
-        }
-        while (drawing.getElementById("grid_line_minor")) {
-          drawing.getElementById("grid_line_minor").remove();
-        }
+        drawing.querySelectorAll(".grid_line").forEach(e => {
+          e.remove();
+        });
       }
 
       function refresh_grid_lines() {
