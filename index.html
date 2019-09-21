@@ -106,7 +106,7 @@
         stroke: red;
       }
 
-      circle#ohm_dot.delete {
+      circle.fill.delete {
         fill: red;
       }
 
@@ -114,11 +114,11 @@
         stroke: green;
       }
 
-      text#ohm_text.original {
+      text.original {
         fill: green;
       }
 
-      circle#ohm_dot.original {
+      circle.fill.original {
         fill: green;
       }
 
@@ -126,7 +126,7 @@
         stroke: blue;
       }
 
-      circle#ohm_dot.tmp {
+      circle.fill.tmp {
         fill: blue;
       }
 
@@ -613,7 +613,7 @@
       function create_temporary_dot(x, y) {
         var drawing = document.getElementById("drawing");
         var dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        dot.setAttribute("id", "ohm_dot");
+        dot.classList.add("fill");
         dot.setAttribute("cx", x);
         dot.setAttribute("cy", y);
         dot.setAttribute("r", "10");
@@ -680,7 +680,6 @@
       function create_temporary_circle(x, y) {
         var drawing = document.getElementById("drawing");
         var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("id", "ohm_circle");
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
         set_circle_small(circle);
@@ -860,7 +859,6 @@
       function create_temporary_text(x, y) {
         var drawing = document.getElementById("drawing");
         var text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("id", "ohm_text");
         text.setAttribute("x", x);
         text.setAttribute("y", y);
         text.setAttribute("text-anchor", "middle");
