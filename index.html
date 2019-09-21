@@ -102,11 +102,11 @@
          javascript, and not in CSS. This is to ensure that the SVG looks
          identical once you hit save.
       */
-      .delete {
+      .to_delete {
         stroke: red;
       }
 
-      circle.fill.delete {
+      circle.fill.to_delete {
         fill: red;
       }
 
@@ -321,7 +321,7 @@
         var drawing = document.getElementById("drawing");
         for (let element of drawing.children) {
           element.classList.remove("original");
-          element.classList.remove("delete");
+          element.classList.remove("to_delete");
           // tmp should be removed using place_temporary_elements() or clear_temporary_elements()
         }
       }
@@ -733,7 +733,7 @@
       }
 
       function drawing_delete_hover(event) {
-        set_class_for_hovered(event, "delete");
+        set_class_for_hovered(event, "to_delete");
       }
 
       // Copy/Move tool functions:
