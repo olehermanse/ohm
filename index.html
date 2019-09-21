@@ -386,7 +386,7 @@
         x = "" + round_to_grid(event.offsetX);
         y = "" + round_to_grid(event.offsetY);
         if (active_tool === "dot") {
-          remove_circle(x, y); // (If it exists)
+          remove_dot(x, y); // (If it exists)
           place_temporary_elements();
 
           // Create temporary element immediately, don't wait for mouse movement:
@@ -637,27 +637,28 @@
 
       // Circle & pin tool functions:
 
-      function find_circle(x, y) {
+      function find_dot(x, y) {
         const drawing = document.getElementById("drawing");
 
         for (const element of drawing.getElementsByTagName("circle")) {
           const cx = element.getAttribute("cx");
           const cy = element.getAttribute("cy");
+          const r = element.getAttribute("r");
           const classes = element.classList;
-          if (!classes.contains("tmp") && cx === x && cy === y) {
+          if (!classes.contains("tmp") && cx === x && cy === y && r === "10") {
             return element;
           }
         }
         return null;
       }
 
-      function circle_exists(x, y) {
-        return find_circle(x, y) != null;
+      function dot_exists(x, y) {
+        return find_dot(x, y) != null;
       }
 
-      function remove_circle(x, y) {
-        if (circle_exists(x, y)) {
-          find_circle(x, y).remove();
+      function remove_dot(x, y) {
+        if (dot_exists(x, y)) {
+          find_dot(x, y).remove();
         }
       }
 
