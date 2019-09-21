@@ -279,8 +279,8 @@
         return drawing.getElementsByClassName(class_name);
       }
 
-      function no_temporary_elements() {
-        return get_elements("tmp").length === 0;
+      function no_elements(class_name) {
+        return get_elements(class_name).length === 0;
       }
 
       function clear_temporary_elements() {
@@ -624,7 +624,7 @@
       }
 
       function drawing_dot_hover(x, y) {
-        if (no_temporary_elements()) {
+        if (no_elements("tmp")) {
           create_temporary_dot(x, y);
         } else {
           update_temporary_dot(x, y);
@@ -705,7 +705,7 @@
       }
 
       function drawing_circle_hover(x, y) {
-        if (no_temporary_elements()) {
+        if (no_elements("tmp")) {
           create_temporary_circle(x, y);
         } else {
           move_temporary_circle(x, y);
@@ -713,7 +713,7 @@
       }
 
       function drawing_circle_drag(x, y) {
-        if (no_temporary_elements()) {
+        if (no_elements("tmp")) {
           return; // Mouse down event should create element, do nothing
         }
         scale_temporary_circle(x, y);
@@ -802,7 +802,7 @@
       }
 
       function drawing_copy_hover(event) {
-        if (no_temporary_elements()) {
+        if (no_elements("tmp")) {
           // No click yet - Make hovered elements green:
           set_class_for_hovered(event, "original");
         } else {
@@ -812,7 +812,7 @@
       }
 
       function drawing_copy_mouse_down(event) {
-        if (no_temporary_elements()) {
+        if (no_elements("tmp")) {
           // First click - create copies:
           create_duplicates(event);
         } else {
@@ -824,7 +824,7 @@
       }
 
       function drawing_move_hover(event) {
-        if (no_temporary_elements()) {
+        if (no_elements("tmp")) {
           // No click yet - Make hovered elements green:
           set_class_for_hovered(event, "original");
         } else {
@@ -834,7 +834,7 @@
       }
 
       function drawing_move_mouse_down(event) {
-        if (no_temporary_elements()) {
+        if (no_elements("tmp")) {
           // First click - create copies:
           create_duplicates(event);
         } else {
@@ -862,7 +862,7 @@
       }
 
       function drawing_text_mouse_down(event) {
-        if (no_temporary_elements()) {
+        if (no_elements("tmp")) {
           // First click
           const originals = get_elements("original");
           if (originals.length == 0) {
@@ -879,7 +879,7 @@
       }
 
       function drawing_text_hover(event) {
-        if (no_temporary_elements()) {
+        if (no_elements("tmp")) {
           // No click yet - Make hovered elements green:
           set_class_for_hovered(event, "original", "text");
         } else {
