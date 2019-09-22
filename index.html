@@ -244,11 +244,11 @@
         let svg_width = Number(drawing.getAttribute("width"));
         let svg_height = Number(drawing.getAttribute("height"));
         if (operation === "+") {
-          svg_width += grid_size;
-          svg_height += grid_size;
+          svg_width += GRID_SIZE;
+          svg_height += GRID_SIZE;
         } else if (operation === "-") {
-          svg_width -= grid_size;
-          svg_height -= grid_size;
+          svg_width -= GRID_SIZE;
+          svg_height -= GRID_SIZE;
         } else {
           console.log("Error: bad resize - " + operation);
         }
