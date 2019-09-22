@@ -722,11 +722,7 @@
       // Delete tool functions:
 
       function drawing_delete_mouse_down(event) {
-        const elements = hovered_elements(event);
-
-        for (const element of elements) {
-          element.remove();
-        }
+        remove_elements("to_delete");
       }
 
       function drawing_delete_hover(event) {
@@ -839,10 +835,7 @@
           create_duplicates(event);
         } else {
           // Second click - Remove originals and place temporary copies:
-          const originals = get_elements("to_edit");
-          for (const original of originals) {
-            original.remove();
-          }
+          remove_elements("to_edit");
           place_elements();
           translation = null;
           drawing_move_hover(event);
