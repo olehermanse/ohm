@@ -267,20 +267,23 @@
       // General functions for manipulating the svg drawing:
       // (Selecting, adding, removing)
 
-      function get_elements(query_selector) {
-        const drawing = document.getElementById("drawing");
-        return drawing.querySelectorAll(query_selector);
+      function default_parent(parent = null) {
+        if (parent) return parent;
+        return document.getElementById("drawing");
       }
 
-      function no_elements(query_selector) {
-        return get_elements(query_selector).length === 0;
+      function get_elements(query_selector, parent = null) {
+        parent = default_parent(parent);
+        return parent.querySelectorAll(query_selector);
+      }
+
+      function no_elements(query_selector, parent = null) {
+        return get_elements(query_selector, parent).length === 0;
       }
 
       function remove_elements(query_selector, parent = null) {
-        if (!parent) {
-          parent = document.getElementById("drawing");
-        }
-        parent.querySelectorAll(query_selector).forEach(e => {
+        const elements = get_elements(query_selector, parent);
+        elements.forEach(e => {
           e.remove();
         });
       }
@@ -299,22 +302,22 @@
         }
       }
 
-      function place_elements() {
-        const temps = get_elements(".to_create");
-        for (const element of temps) {
-          element.classList.remove("to_create");
+      function remove_class(class_name, parent = null) {
+        const elements = get_elements("." + class_name, parent);
+        for (const element of elements) {
+          element.classList.remove(class_name);
         }
+      }
+
+      function place_elements() {
+        remove_class("to_create");
       }
 
       // Copy and delete tools select elements inside svg using classes (coloring them)
       // This function removes those classes, for example when switching tool
       function unselect_elements() {
-        const drawing = document.getElementById("drawing");
-        for (const element of drawing.children) {
-          element.classList.remove("to_edit");
-          element.classList.remove("to_delete");
-          // to_create should be removed using place_elements() or remove_elements(".to_create")
-        }
+        remove_class("to_edit");
+        remove_class("to_delete");
       }
 
       function hovered_elements(event, tag = null) {
