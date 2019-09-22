@@ -204,10 +204,10 @@
         const svg_width = Number(drawing.getAttribute("width"));
         const svg_height = Number(drawing.getAttribute("height"));
         for (let x = grid_size; x < svg_width; x += grid_size) {
-          create_grid_line(x, 0, x, svg_width, get_grid_flavor(x));
+          create_grid_line(x, 0, x, svg_height, get_grid_flavor(x));
         }
         for (let y = grid_size; y < svg_height; y += grid_size) {
-          create_grid_line(0, y, svg_height, y, get_grid_flavor(y));
+          create_grid_line(0, y, svg_width, y, get_grid_flavor(y));
         }
       }
 
@@ -253,6 +253,18 @@
             svg_width -= GRID_SIZE;
             svg_height -= GRID_SIZE;
           }
+        } else if (operation === "ArrowUp") {
+          if (svg_height > GRID_SIZE) {
+            svg_height -= GRID_SIZE;
+          }
+        } else if (operation === "ArrowDown") {
+          svg_height += GRID_SIZE;
+        } else if (operation === "ArrowLeft") {
+          if (svg_width > GRID_SIZE) {
+            svg_width -= GRID_SIZE;
+          }
+        } else if (operation === "ArrowRight") {
+          svg_width += GRID_SIZE;
         } else {
           console.log("Error: bad resize - " + operation);
         }
@@ -501,6 +513,10 @@
         }
         const key = event.key;
         switch (key) {
+          case "ArrowUp":
+          case "ArrowDown":
+          case "ArrowLeft":
+          case "ArrowRight":
           case "+":
           case "-":
             resize(key);
