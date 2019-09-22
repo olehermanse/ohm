@@ -242,32 +242,32 @@
         init_grid();
       }
 
-      function resize(operation) {
+      function resize(key) {
         const drawing = document.getElementById("drawing");
         let svg_width = Number(drawing.getAttribute("width"));
         let svg_height = Number(drawing.getAttribute("height"));
-        if (operation === "+") {
+        if (key === "+") {
           svg_width += GRID_SIZE;
           svg_height += GRID_SIZE;
-        } else if (operation === "-") {
+        } else if (key === "-") {
           if (svg_width > GRID_SIZE) {
             svg_width -= GRID_SIZE;
             svg_height -= GRID_SIZE;
           }
-        } else if (operation === "ArrowUp") {
+        } else if (key === "ArrowUp") {
           if (svg_height > GRID_SIZE) {
             svg_height -= GRID_SIZE;
           }
-        } else if (operation === "ArrowDown") {
+        } else if (key === "ArrowDown") {
           svg_height += GRID_SIZE;
-        } else if (operation === "ArrowLeft") {
+        } else if (key === "ArrowLeft") {
           if (svg_width > GRID_SIZE) {
             svg_width -= GRID_SIZE;
           }
-        } else if (operation === "ArrowRight") {
+        } else if (key === "ArrowRight") {
           svg_width += GRID_SIZE;
         } else {
-          alert("Error: bad resize - " + operation);
+          alert("Error: bad resize - " + key);
         }
         drawing.setAttribute("width", "" + svg_width);
         drawing.setAttribute("height", "" + svg_height);
