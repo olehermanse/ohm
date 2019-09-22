@@ -258,9 +258,9 @@
         refresh_grid_lines();
       }
 
-      function subdivide_grid(operation) {
+      function subdivide_grid(subdivisions) {
         const drawing = document.getElementById("drawing");
-        grid_size = GRID_SIZE / operation;
+        grid_size = GRID_SIZE / subdivisions;
         refresh_grid_lines();
       }
 
