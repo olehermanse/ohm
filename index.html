@@ -171,7 +171,7 @@
       }
 
       function activate_tool(new_state) {
-        remove_elements("to_create");
+        remove_elements(".to_create");
         unselect_elements();
         active_tool = new_state;
         const toolbox = document.getElementById("toolbox");
@@ -234,15 +234,8 @@
         drawing.prepend(line);
       }
 
-      function remove_grid_lines(drawing) {
-        drawing.querySelectorAll(".grid_line").forEach(e => {
-          e.remove();
-        });
-      }
-
       function refresh_grid_lines() {
-        const drawing = document.getElementById("drawing");
-        remove_grid_lines(drawing);
+        remove_elements(".grid_line");
         init_grid();
       }
 
@@ -283,11 +276,13 @@
         return get_elements(class_name).length === 0;
       }
 
-      function remove_elements(class_name) {
-        const temps = get_elements(class_name);
-        for (const element of temps) {
-          element.remove();
+      function remove_elements(query_selector, parent = null) {
+        if (!parent) {
+          parent = document.getElementById("drawing");
         }
+        parent.querySelectorAll(query_selector).forEach(e => {
+          e.remove();
+        });
       }
 
       function create_element(element) {
@@ -318,7 +313,7 @@
         for (const element of drawing.children) {
           element.classList.remove("to_edit");
           element.classList.remove("to_delete");
-          // to_create should be removed using place_elements() or remove_elements("to_create")
+          // to_create should be removed using place_elements() or remove_elements(".to_create")
         }
       }
 
@@ -509,7 +504,7 @@
             subdivide_grid(key);
             break;
           case "Escape":
-            remove_elements("to_create");
+            remove_elements(".to_create");
             unselect_elements();
             break;
           case "s":
@@ -538,7 +533,7 @@
       // Functionality related to the left toolbar:
 
       function toolbar(icon_name) {
-        remove_elements("to_create");
+        remove_elements(".to_create");
         if (icon_name === "save") {
           save();
         } else if (icon_name == "load") {
@@ -549,9 +544,9 @@
       }
 
       function save() {
-        remove_elements("to_create");
+        remove_elements(".to_create");
         const copy = document.getElementById("drawing").cloneNode(true);
-        remove_grid_lines(copy);
+        remove_elements(".grid_line", copy);
         for (const element of copy.children) {
           element.removeAttribute("id");
           element.removeAttribute("class");
@@ -722,7 +717,7 @@
       // Delete tool functions:
 
       function drawing_delete_mouse_down(event) {
-        remove_elements("to_delete");
+        remove_elements(".to_delete");
       }
 
       function drawing_delete_hover(event) {
@@ -835,7 +830,7 @@
           create_duplicates(event);
         } else {
           // Second click - Remove originals and place temporary copies:
-          remove_elements("to_edit");
+          remove_elements(".to_edit");
           place_elements();
           translation = null;
           drawing_move_hover(event);
