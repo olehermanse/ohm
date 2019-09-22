@@ -171,7 +171,7 @@
       }
 
       function activate_tool(new_state) {
-        clear_temporary_elements();
+        remove_elements("to_create");
         unselect_elements();
         active_tool = new_state;
         const toolbox = document.getElementById("toolbox");
@@ -283,8 +283,8 @@
         return get_elements(class_name).length === 0;
       }
 
-      function clear_temporary_elements() {
-        const temps = get_elements("to_create");
+      function remove_elements(class_name) {
+        const temps = get_elements(class_name);
         for (const element of temps) {
           element.remove();
         }
@@ -318,7 +318,7 @@
         for (const element of drawing.children) {
           element.classList.remove("original");
           element.classList.remove("to_delete");
-          // to_create should be removed using place_elements() or clear_temporary_elements()
+          // to_create should be removed using place_elements() or remove_elements("to_create")
         }
       }
 
@@ -509,7 +509,7 @@
             subdivide_grid(key);
             break;
           case "Escape":
-            clear_temporary_elements();
+            remove_elements("to_create");
             unselect_elements();
             break;
           case "s":
@@ -538,7 +538,7 @@
       // Functionality related to the left toolbar:
 
       function toolbar(icon_name) {
-        clear_temporary_elements();
+        remove_elements("to_create");
         if (icon_name === "save") {
           save();
         } else if (icon_name == "load") {
@@ -549,7 +549,7 @@
       }
 
       function save() {
-        clear_temporary_elements();
+        remove_elements("to_create");
         const copy = document.getElementById("drawing").cloneNode(true);
         remove_grid_lines(copy);
         for (const element of copy.children) {
