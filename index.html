@@ -247,8 +247,10 @@
           svg_width += GRID_SIZE;
           svg_height += GRID_SIZE;
         } else if (operation === "-") {
-          svg_width -= GRID_SIZE;
-          svg_height -= GRID_SIZE;
+          if (svg_width > GRID_SIZE) {
+            svg_width -= GRID_SIZE;
+            svg_height -= GRID_SIZE;
+          }
         } else {
           console.log("Error: bad resize - " + operation);
         }
