@@ -304,7 +304,7 @@
         }
       }
 
-      function place_temporary_elements() {
+      function place_elements() {
         const temps = get_elements("to_create");
         for (const element of temps) {
           element.classList.remove("to_create");
@@ -318,7 +318,7 @@
         for (const element of drawing.children) {
           element.classList.remove("original");
           element.classList.remove("to_delete");
-          // to_create should be removed using place_temporary_elements() or clear_temporary_elements()
+          // to_create should be removed using place_elements() or clear_temporary_elements()
         }
       }
 
@@ -383,7 +383,7 @@
         y = "" + round_to_grid(event.offsetY);
         if (active_tool === "dot") {
           remove_dot(x, y); // (If it exists)
-          place_temporary_elements();
+          place_elements();
 
           // Create temporary element immediately, don't wait for mouse movement:
           fake_mouse_move();
@@ -408,7 +408,7 @@
         const x = "" + round_to_grid(event.offsetX);
         const y = "" + round_to_grid(event.offsetY);
         if (active_tool === "circle") {
-          place_temporary_elements();
+          place_elements();
 
           // Create temporary circle immediately, don't wait for mouse movement:
           fake_mouse_move();
@@ -477,7 +477,7 @@
             break; // Do nothing
           case "Escape":
           case "Enter":
-            place_temporary_elements();
+            place_elements();
             break;
           case "Backspace":
             text_backspace();
@@ -817,7 +817,7 @@
           create_duplicates(event);
         } else {
           // Second click - Place copies:
-          place_temporary_elements();
+          place_elements();
           translation = null;
           drawing_copy_hover(event);
         }
@@ -843,7 +843,7 @@
           for (const original of originals) {
             original.remove();
           }
-          place_temporary_elements();
+          place_elements();
           translation = null;
           drawing_move_hover(event);
         }
@@ -874,7 +874,7 @@
             }
           }
         } else {
-          place_temporary_elements();
+          place_elements();
         }
       }
 
@@ -985,7 +985,7 @@
       }
 
       function wire_end() {
-        place_temporary_elements();
+        place_elements();
       }
 
       function create_wire(points, id, tag) {
