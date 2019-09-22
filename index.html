@@ -292,6 +292,7 @@
 
       function create_element(element) {
         element.classList.add("to_create");
+        element.classList.remove("to_edit");
         const drawing = document.getElementById("drawing");
 
         if (element.tagName === "circle") {
