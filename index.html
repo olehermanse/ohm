@@ -267,7 +267,7 @@
         } else if (operation === "ArrowRight") {
           svg_width += GRID_SIZE;
         } else {
-          console.log("Error: bad resize - " + operation);
+          alert("Error: bad resize - " + operation);
         }
         drawing.setAttribute("width", "" + svg_width);
         drawing.setAttribute("height", "" + svg_height);
