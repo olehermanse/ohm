@@ -123,11 +123,11 @@
         fill: blue;
       }
 
-      .to_create {
+      .to_place {
         stroke: green;
       }
 
-      circle.fill.to_create {
+      circle.fill.to_place {
         fill: green;
       }
 
@@ -173,7 +173,7 @@
       }
 
       function activate_tool(new_state) {
-        remove_elements(".to_create");
+        remove_elements(".to_place");
         unselect_elements();
         active_tool = new_state;
         const toolbox = document.getElementById("toolbox");
@@ -293,7 +293,7 @@
       }
 
       function create_element(element) {
-        element.classList.add("to_create");
+        element.classList.add("to_place");
         element.classList.remove("to_edit");
         const drawing = document.getElementById("drawing");
 
@@ -315,7 +315,7 @@
       }
 
       function place_elements() {
-        remove_class("to_create");
+        remove_class("to_place");
       }
 
       // Copy and delete tools select elements inside svg using classes (coloring them)
@@ -446,7 +446,7 @@
       // Keyboard events:
 
       function text_add(key) {
-        const elements = get_elements(".to_create");
+        const elements = get_elements(".to_place");
         for (const element of elements) {
           if (element.innerHTML === "SAMPLE TEXT") {
             // TODO, get rid of this hack:
@@ -456,7 +456,7 @@
         }
       }
       function text_backspace() {
-        const elements = get_elements(".to_create");
+        const elements = get_elements(".to_place");
         for (const element of elements) {
           if (element.innerHTML === "SAMPLE TEXT") {
             // TODO, get rid of this hack:
@@ -492,7 +492,7 @@
       }
 
       function key_down(event) {
-        if (active_tool === "text" && get_elements(".to_create").length > 0) {
+        if (active_tool === "text" && get_elements(".to_place").length > 0) {
           text_key_down(event);
           return;
         }
@@ -512,7 +512,7 @@
             subdivide_grid(key);
             break;
           case "Escape":
-            remove_elements(".to_create");
+            remove_elements(".to_place");
             unselect_elements();
             break;
           case "s":
@@ -541,7 +541,7 @@
       // Functionality related to the left toolbar:
 
       function toolbar(icon_name) {
-        remove_elements(".to_create");
+        remove_elements(".to_place");
         if (icon_name === "save") {
           save();
         } else if (icon_name == "load") {
@@ -552,7 +552,7 @@
       }
 
       function save() {
-        remove_elements(".to_create");
+        remove_elements(".to_place");
         const copy = document.getElementById("drawing").cloneNode(true);
         remove_elements(".grid_line", copy);
         for (const element of copy.children) {
@@ -619,15 +619,15 @@
       }
 
       function update_dot(x, y) {
-        const elements_to_create = get_elements(".to_create");
-        console.assert(elements_to_create.length == 1, elements_to_create);
-        const dot = elements_to_create[0];
+        const elements_to_place = get_elements(".to_place");
+        console.assert(elements_to_place.length == 1, elements_to_place);
+        const dot = elements_to_place[0];
         dot.setAttribute("cx", x);
         dot.setAttribute("cy", y);
       }
 
       function drawing_dot_hover(x, y) {
-        if (no_elements(".to_create")) {
+        if (no_elements(".to_place")) {
           create_dot(x, y);
         } else {
           update_dot(x, y);
@@ -644,7 +644,7 @@
           const cy = element.getAttribute("cy");
           const r = element.getAttribute("r");
           const classes = element.classList;
-          if (!classes.contains("to_create") && cx === x && cy === y && r === "10") {
+          if (!classes.contains("to_place") && cx === x && cy === y && r === "10") {
             return element;
           }
         }
@@ -685,17 +685,17 @@
       }
 
       function move_circle(x, y) {
-        const elements_to_create = get_elements(".to_create");
-        console.assert(elements_to_create.length == 1, elements_to_create);
-        const circle = elements_to_create[0];
+        const elements_to_place = get_elements(".to_place");
+        console.assert(elements_to_place.length == 1, elements_to_place);
+        const circle = elements_to_place[0];
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
       }
 
       function scale_circle(x, y) {
-        const elements_to_create = get_elements(".to_create");
-        console.assert(elements_to_create.length == 1, elements_to_create);
-        const circle = elements_to_create[0];
+        const elements_to_place = get_elements(".to_place");
+        console.assert(elements_to_place.length == 1, elements_to_place);
+        const circle = elements_to_place[0];
         const cx = circle.getAttribute("cx");
         const cy = circle.getAttribute("cy");
         const distance_squared = Math.pow(x - cx, 2) + Math.pow(y - cy, 2);
@@ -708,7 +708,7 @@
       }
 
       function drawing_circle_hover(x, y) {
-        if (no_elements(".to_create")) {
+        if (no_elements(".to_place")) {
           create_circle(x, y);
         } else {
           move_circle(x, y);
@@ -716,7 +716,7 @@
       }
 
       function drawing_circle_drag(x, y) {
-        if (no_elements(".to_create")) {
+        if (no_elements(".to_place")) {
           return; // Mouse down event should create element, do nothing
         }
         scale_circle(x, y);
@@ -768,8 +768,8 @@
         }
       }
 
-      function move_elements(event, elements_to_create) {
-        for (const element of elements_to_create) {
+      function move_elements(event, elements_to_place) {
+        for (const element of elements_to_place) {
           if (element.tagName === "text") {
             move_element(element, event.offsetX, event.offsetY);
           } else {
@@ -801,17 +801,17 @@
       }
 
       function drawing_copy_hover(event) {
-        if (no_elements(".to_create")) {
+        if (no_elements(".to_place")) {
           // No click yet - Make hovered elements green:
           set_class_for_hovered(event, "to_edit");
         } else {
           // Selected elements exist - translate them:
-          move_elements(event, get_elements(".to_create"));
+          move_elements(event, get_elements(".to_place"));
         }
       }
 
       function drawing_copy_mouse_down(event) {
-        if (no_elements(".to_create")) {
+        if (no_elements(".to_place")) {
           // First click - create copies:
           create_duplicates(event);
         } else {
@@ -823,17 +823,17 @@
       }
 
       function drawing_move_hover(event) {
-        if (no_elements(".to_create")) {
+        if (no_elements(".to_place")) {
           // No click yet - Make hovered elements green:
           set_class_for_hovered(event, "to_edit");
         } else {
           // Selected elements exist - translate them:
-          move_elements(event, get_elements(".to_create"));
+          move_elements(event, get_elements(".to_place"));
         }
       }
 
       function drawing_move_mouse_down(event) {
-        if (no_elements(".to_create")) {
+        if (no_elements(".to_place")) {
           // First click - create copies:
           create_duplicates(event);
         } else {
@@ -858,14 +858,14 @@
       }
 
       function drawing_text_mouse_down(event) {
-        if (no_elements(".to_create")) {
+        if (no_elements(".to_place")) {
           // First click
           const originals = get_elements("to_edit");
           if (originals.length == 0) {
             create_text(event.offsetX, event.offsetY);
           } else {
             for (const original of originals) {
-              original.classList.add("to_create");
+              original.classList.add("to_place");
               original.classList.remove("to_edit");
             }
           }
@@ -875,12 +875,12 @@
       }
 
       function drawing_text_hover(event) {
-        if (no_elements(".to_create")) {
+        if (no_elements(".to_place")) {
           // No click yet - Make hovered elements green:
           set_class_for_hovered(event, "to_edit", "text");
         } else {
           // Temporary elements exist - translate them:
-          move_elements(event, get_elements(".to_create"));
+          move_elements(event, get_elements(".to_place"));
         }
       }
 
@@ -910,12 +910,12 @@
       }
 
       function drawing_wire_mouse_down(x, y) {
-        if (get_elements(".to_create").length === 0) {
+        if (get_elements(".to_place").length === 0) {
           wire_start(x, y);
         } else {
-          const elements_to_create = get_elements(".to_create");
-          console.assert(elements_to_create.length == 1, elements_to_create);
-          const wire = get_elements(".to_create")[0];
+          const elements_to_place = get_elements(".to_place");
+          console.assert(elements_to_place.length == 1, elements_to_place);
+          const wire = get_elements(".to_place")[0];
           const points = get_points(wire);
 
           // Get the first point and last point we clicked:
@@ -932,10 +932,10 @@
       }
 
       function drawing_wire_hover(x, y) {
-        if (get_elements(".to_create").length === 0) {
+        if (get_elements(".to_place").length === 0) {
           return;
         }
-        const wire = get_elements(".to_create")[0];
+        const wire = get_elements(".to_place")[0];
         const points = get_points(wire);
         points[points.length - 1] = {
           x: x,
@@ -974,7 +974,7 @@
           x: x,
           y: y
         };
-        const wire = get_elements(".to_create")[0];
+        const wire = get_elements(".to_place")[0];
         const points = get_points(wire);
         points.push(point);
         wire.setAttribute("points", create_points_str(points));
