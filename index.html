@@ -290,7 +290,7 @@
         }
       }
 
-      function add_temporary_element(element) {
+      function create_element(element) {
         element.classList.add("to_create");
         const drawing = document.getElementById("drawing");
 
@@ -612,7 +612,7 @@
         dot.setAttribute("cy", y);
         dot.setAttribute("r", "10");
         dot.setAttribute("stroke-width", "3");
-        add_temporary_element(dot);
+        create_element(dot);
       }
 
       function update_temporary_dot(x, y) {
@@ -678,7 +678,7 @@
         circle.setAttribute("cx", x);
         circle.setAttribute("cy", y);
         set_circle_small(circle);
-        add_temporary_element(circle);
+        create_element(circle);
       }
 
       function move_temporary_circle(x, y) {
@@ -791,7 +791,7 @@
       function create_duplicates(event) {
         const elements = hovered_elements(event);
         for (const element of elements) {
-          add_temporary_element(element.cloneNode(true));
+          create_element(element.cloneNode(true));
         }
         const mouse_x = round_to_grid(event.offsetX);
         const mouse_y = round_to_grid(event.offsetY);
@@ -858,7 +858,7 @@
         text.setAttribute("y", y);
         text.setAttribute("text-anchor", "middle");
         text.innerHTML = "SAMPLE TEXT";
-        add_temporary_element(text);
+        create_element(text);
       }
 
       function drawing_text_mouse_down(event) {
@@ -958,7 +958,7 @@
         }
         if (replace_tag) {
           const new_wire = create_wire(points, "", replace_tag);
-          add_temporary_element(new_wire);
+          create_element(new_wire);
           wire.remove();
         }
       }
@@ -970,7 +970,7 @@
         };
         const points = [point, point];
         const polyline = create_wire(points, "", "polyline");
-        add_temporary_element(polyline);
+        create_element(polyline);
       }
 
       function wire_continue(x, y) {
