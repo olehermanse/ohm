@@ -110,15 +110,15 @@
         fill: red;
       }
 
-      .original {
+      .to_edit {
         stroke: blue;
       }
 
-      text.original {
+      text.to_edit {
         fill: blue;
       }
 
-      circle.fill.original {
+      circle.fill.to_edit {
         fill: blue;
       }
 
@@ -316,7 +316,7 @@
       function unselect_elements() {
         const drawing = document.getElementById("drawing");
         for (const element of drawing.children) {
-          element.classList.remove("original");
+          element.classList.remove("to_edit");
           element.classList.remove("to_delete");
           // to_create should be removed using place_elements() or remove_elements("to_create")
         }
@@ -804,7 +804,7 @@
       function drawing_copy_hover(event) {
         if (no_elements("to_create")) {
           // No click yet - Make hovered elements green:
-          set_class_for_hovered(event, "original");
+          set_class_for_hovered(event, "to_edit");
         } else {
           // Temporary elements exist - translate them:
           move_elements(event, get_elements("to_create"));
@@ -826,7 +826,7 @@
       function drawing_move_hover(event) {
         if (no_elements("to_create")) {
           // No click yet - Make hovered elements green:
-          set_class_for_hovered(event, "original");
+          set_class_for_hovered(event, "to_edit");
         } else {
           // Temporary elements exist - translate them:
           move_elements(event, get_elements("to_create"));
@@ -839,7 +839,7 @@
           create_duplicates(event);
         } else {
           // Second click - Remove originals and place temporary copies:
-          const originals = get_elements("original");
+          const originals = get_elements("to_edit");
           for (const original of originals) {
             original.remove();
           }
@@ -864,13 +864,13 @@
       function drawing_text_mouse_down(event) {
         if (no_elements("to_create")) {
           // First click
-          const originals = get_elements("original");
+          const originals = get_elements("to_edit");
           if (originals.length == 0) {
             create_temporary_text(event.offsetX, event.offsetY);
           } else {
             for (const original of originals) {
               original.classList.add("to_create");
-              original.classList.remove("original");
+              original.classList.remove("to_edit");
             }
           }
         } else {
@@ -881,7 +881,7 @@
       function drawing_text_hover(event) {
         if (no_elements("to_create")) {
           // No click yet - Make hovered elements green:
-          set_class_for_hovered(event, "original", "text");
+          set_class_for_hovered(event, "to_edit", "text");
         } else {
           // Temporary elements exist - translate them:
           move_elements(event, get_elements("to_create"));
