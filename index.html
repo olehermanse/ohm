@@ -392,11 +392,32 @@
         }
       }
 
+      function drawingGetXY(event) {
+        if (event.target === null || event.target.id === "drawing") {
+          // Either a fake event, or an event on the <svg id="drawing"> element
+          // In both cases, offsetX and offsetY should be correct:
+          return { x: event.offsetX, y: event.offsetY };
+        }
+
+        // Some events happen on the lines, circles and polygons inside the svg
+        // This causes problems, especially in Firefox
+        // since event offsets are relative to the element
+        // Thus, we use absolute numbers to calculate the offsets relative to
+        // drawing
+
+        let svg = document.getElementById("drawing").getBoundingClientRect();
+        let x = event.x - svg.x;
+        let y = event.y - svg.y;
+
+        return { x: x, y: y };
+      }
+
       function drawing_mouse_down(event) {
         event.preventDefault();
         update_mouse(event);
-        x = "" + round_to_grid(event.offsetX);
-        y = "" + round_to_grid(event.offsetY);
+        let pos = drawingGetXY(event);
+        let x = "" + round_to_grid(pos.x);
+        let y = "" + round_to_grid(pos.y);
         if (active_tool === "dot") {
           remove_dot(x, y); // (If it exists)
           place_elements();
@@ -421,8 +442,9 @@
       function drawing_mouse_up(event) {
         event.preventDefault();
         update_mouse(event);
-        const x = "" + round_to_grid(event.offsetX);
-        const y = "" + round_to_grid(event.offsetY);
+        let pos = drawingGetXY(event);
+        let x = "" + round_to_grid(pos.x);
+        let y = "" + round_to_grid(pos.y);
         if (active_tool === "circle") {
           place_elements();
 
@@ -435,8 +457,9 @@
         event.preventDefault();
         update_mouse(event);
         const mouse_pressed = event.buttons > 0;
-        const x = "" + round_to_grid(event.offsetX);
-        const y = "" + round_to_grid(event.offsetY);
+        let pos = drawingGetXY(event);
+        let x = "" + round_to_grid(pos.x);
+        let y = "" + round_to_grid(pos.y);
         if (active_tool === "wire") {
           drawing_wire_hover(x, y);
         } else if (active_tool === "delete") {
