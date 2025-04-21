@@ -303,7 +303,7 @@
 
       function remove_elements(query_selector, parent = null) {
         const elements = get_elements(query_selector, parent);
-        elements.forEach(e => {
+        elements.forEach((e) => {
           e.remove();
         });
       }
@@ -385,7 +385,7 @@
           target: null,
           offsetX: event.offsetX,
           offsetY: event.offsetY,
-          preventDefault: () => {}
+          preventDefault: () => {},
         };
       }
 
@@ -617,11 +617,11 @@
       function open_file_dialog(on_complete) {
         const input = document.createElement("input");
         input.type = "file";
-        input.onchange = e => {
+        input.onchange = (e) => {
           const file = e.target.files[0];
           const reader = new FileReader();
           reader.readAsText(file, "UTF-8");
-          reader.onload = readerEvent => {
+          reader.onload = (readerEvent) => {
             const content = readerEvent.target.result;
             on_complete(content);
           };
@@ -938,7 +938,7 @@
           const y = coordinates[1];
           results.push({
             x: x,
-            y: y
+            y: y,
           });
         }
         return results;
@@ -982,7 +982,7 @@
         const points = get_points(wire);
         points[points.length - 1] = {
           x: x,
-          y: y
+          y: y,
         };
         wire.setAttribute("points", create_points_str(points));
         let replace_tag = null;
@@ -1005,7 +1005,7 @@
       function wire_start(x, y) {
         const point = {
           x: x,
-          y: y
+          y: y,
         };
         const points = [point, point];
         const polyline = create_wire(points, "", "polyline");
@@ -1015,7 +1015,7 @@
       function wire_continue(x, y) {
         const point = {
           x: x,
-          y: y
+          y: y,
         };
         const wire = get_elements(".to_place")[0];
         const points = get_points(wire);
